@@ -337,7 +337,6 @@ public class AuthView {
         }
 
         String fullname = getFullnameByEmail(email);
-        System.out.println(fullname);
         _user.setEmail(email);
         _user.setFullname(fullname);
         showMainView();
