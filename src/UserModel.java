@@ -11,11 +11,6 @@ public class UserModel {
         this.fullname = fullname;
     }
 
-    public UserModel(String email, String fullname) {
-        this.email = email;
-        this.fullname = fullname;
-    }
-
     public String getEmail() {
         return this.email;
     }
