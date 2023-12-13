@@ -258,20 +258,11 @@ public class AuthView {
     }
 
     private boolean checkExistkUser(String username) {
-        if (_users.containsKey(username)) {
-            return true;
-        }
-        return false;
+        return _users.containsKey(username);
     }
 
     private boolean checkLogin(String username, String password) {
-        if (checkExistkUser(username)) {
-            String pwd = _users.get(username);
-            if (password.equals(pwd)) {
-                return true;
-            }
-        }
-        return false;
+        return checkExistkUser(username) && _users.get(username).equals(password);
     }
 
     private void registerUser(String username, String password, String confirmPassword) {
