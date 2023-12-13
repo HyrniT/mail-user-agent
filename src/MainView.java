@@ -11,16 +11,12 @@ public class MainView {
         frame = new JFrame("Hmail");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-        frame.setSize(400, 300);
+        frame.setSize(1200, 800);
     }
 
     public void show() {
         SwingUtilities.invokeLater(() -> {
             frame.setVisible(true);
         });
-    }
-
-    public void hide() {
-        frame.setVisible(false);
     }
 }

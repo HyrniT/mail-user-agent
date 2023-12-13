@@ -1,27 +1,41 @@
 public class UserModel {
-    private String username;
+    private String email;
     private String password;
+    private String fullname;
 
     public UserModel() { }
 
-    public UserModel(String username, String password) {
-        this.username = username;
+    public UserModel(String email, String password, String fullname) {
+        this.email = email;
         this.password = password;
+        this.fullname = fullname;
     }
 
-    public String getUsername() {
-        return this.username;
+    public String getEmail() {
+        return this.email;
     }
 
     public String getPassword() {
         return this.password;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getFullname() {
+        return this.fullname;
+    }
+
+    public void setUsername(String email) {
+        this.email = email;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String toString() {
+        return this.fullname + " <" + this.email + ">";
     }
 }

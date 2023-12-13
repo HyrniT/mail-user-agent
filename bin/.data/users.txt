@@ -1,2 +1,1 @@
-admin,123
-hien,123
+ngqghien@gmail.com,123,Hien Nguyen

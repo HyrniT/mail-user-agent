@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Config>
+    <General>
+        <MailServer>192.168.1.10</MailServer>
+        <SMTP>3333</SMTP>
+        <POP3>4444</POP3>
+        <Autoload>10</Autoload>
+    </General>
+    <Filter>
+        <Project>
+            <From></From>
+            <Subject></Subject>
+            <Body></Body>
+            <Content></Content>
+        </Project>
+        <Important>
+            <From></From>
+            <Subject></Subject>
+            <Body></Body>
+            <Content></Content>
+        </Important>
+        <Work>
+            <From></From>
+            <Subject></Subject>
+            <Body></Body>
+            <Content></Content>
+        </Work>
+        <Spam>
+            <From></From>
+            <Subject></Subject>
+            <Body></Body>
+            <Content></Content>
+        </Spam>
+    </Filter>
+</Config>

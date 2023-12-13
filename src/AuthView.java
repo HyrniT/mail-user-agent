@@ -10,11 +10,11 @@ public class AuthView {
     private final Color OnPrimaryColor = Color.BLACK;
     private final String FontName = "Arial";
 
-    private Map<String, String> _users = new HashMap<>();
+    private ArrayList<UserModel> _users = new ArrayList<>();
 
     private JFrame frame;
     private JTabbedPane tabbedPane;
-    private JTextField loginUsernameField, registerUsernameField;
+    private JTextField loginEmailField, registerEmailField, registerFullnameField;
     private JPasswordField loginPasswordField, registerPasswordField, registerConfirmPasswordField;
     private JButton loginButton, registerButton;
     private JLabel loginMessageLabel, registerMessageLabel;
@@ -31,7 +31,7 @@ public class AuthView {
         frame = new JFrame("Hmail Login");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-        frame.setSize(400, 260);
+        frame.setSize(400, 300);
 
         tabbedPane = new JTabbedPane();
 
@@ -47,11 +47,11 @@ public class AuthView {
         loginLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         loginLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel loginUsernameLabel = new JLabel("Username:");
-        loginUsernameLabel.setFont(new Font(FontName, Font.BOLD, 13));
-        loginUsernameLabel.setForeground(OnPrimaryColor);
-        loginUsernameLabel.setBackground(PrimaryColor);
-        loginUsernameLabel.setPreferredSize(new Dimension(120, 24));
+        JLabel loginEmailLabel = new JLabel("Email:");
+        loginEmailLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        loginEmailLabel.setForeground(OnPrimaryColor);
+        loginEmailLabel.setBackground(PrimaryColor);
+        loginEmailLabel.setPreferredSize(new Dimension(120, 24));
 
         JLabel loginPasswordLabel = new JLabel("Password:");
         loginPasswordLabel.setFont(new Font(FontName, Font.BOLD, 13));
@@ -59,11 +59,11 @@ public class AuthView {
         loginPasswordLabel.setBackground(PrimaryColor);
         loginPasswordLabel.setPreferredSize(new Dimension(120, 24));
 
-        loginUsernameField = new JTextField();
-        loginUsernameField.setBackground(PrimaryColor);
-        loginUsernameField.setForeground(OnPrimaryColor);
-        loginUsernameField.setCaretColor(OnPrimaryColor);
-        loginUsernameField.setPreferredSize(new Dimension(230, 24));
+        loginEmailField = new JTextField();
+        loginEmailField.setBackground(PrimaryColor);
+        loginEmailField.setForeground(OnPrimaryColor);
+        loginEmailField.setCaretColor(OnPrimaryColor);
+        loginEmailField.setPreferredSize(new Dimension(230, 24));
 
         loginPasswordField = new JPasswordField();
         loginPasswordField.setBackground(PrimaryColor);
@@ -87,8 +87,8 @@ public class AuthView {
         JPanel loginFormPanel = new JPanel();
         loginFormPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         loginFormPanel.setBackground(PrimaryColor);
-        loginFormPanel.add(loginUsernameLabel);
-        loginFormPanel.add(loginUsernameField);
+        loginFormPanel.add(loginEmailLabel);
+        loginFormPanel.add(loginEmailField);
         loginFormPanel.add(loginPasswordLabel);
         loginFormPanel.add(loginPasswordField);
         loginFormPanel.add(loginMessageLabel);
@@ -109,11 +109,17 @@ public class AuthView {
         registerLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         registerLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel registerUsernameLabel = new JLabel("Username:");
-        registerUsernameLabel.setFont(new Font(FontName, Font.BOLD, 13));
-        registerUsernameLabel.setForeground(OnPrimaryColor);
-        registerUsernameLabel.setBackground(PrimaryColor);
-        registerUsernameLabel.setPreferredSize(new Dimension(120, 24));
+        JLabel registerFullnameLabel = new JLabel("Fullname:");
+        registerFullnameLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        registerFullnameLabel.setForeground(OnPrimaryColor);
+        registerFullnameLabel.setBackground(PrimaryColor);
+        registerFullnameLabel.setPreferredSize(new Dimension(120, 24));
+
+        JLabel registerEmailLabel = new JLabel("Email:");
+        registerEmailLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        registerEmailLabel.setForeground(OnPrimaryColor);
+        registerEmailLabel.setBackground(PrimaryColor);
+        registerEmailLabel.setPreferredSize(new Dimension(120, 24));
 
         JLabel registerPasswordLabel = new JLabel("Password:");
         registerPasswordLabel.setFont(new Font(FontName, Font.BOLD, 13));
@@ -127,11 +133,17 @@ public class AuthView {
         registerConfirmPasswordLabel.setBackground(PrimaryColor);
         registerConfirmPasswordLabel.setPreferredSize(new Dimension(120, 24));
 
-        registerUsernameField = new JTextField();
-        registerUsernameField.setBackground(PrimaryColor);
-        registerUsernameField.setForeground(OnPrimaryColor);
-        registerUsernameField.setCaretColor(OnPrimaryColor);
-        registerUsernameField.setPreferredSize(new Dimension(230, 24));
+        registerEmailField = new JTextField();
+        registerEmailField.setBackground(PrimaryColor);
+        registerEmailField.setForeground(OnPrimaryColor);
+        registerEmailField.setCaretColor(OnPrimaryColor);
+        registerEmailField.setPreferredSize(new Dimension(230, 24));
+
+        registerFullnameField = new JTextField();
+        registerFullnameField.setBackground(PrimaryColor);
+        registerFullnameField.setForeground(OnPrimaryColor);
+        registerFullnameField.setCaretColor(OnPrimaryColor);
+        registerFullnameField.setPreferredSize(new Dimension(230, 24));
 
         registerPasswordField = new JPasswordField();
         registerPasswordField.setBackground(PrimaryColor);
@@ -161,8 +173,10 @@ public class AuthView {
         JPanel registerFormPanel = new JPanel();
         registerFormPanel.setBackground(PrimaryColor);
         registerFormPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        registerFormPanel.add(registerUsernameLabel);
-        registerFormPanel.add(registerUsernameField);
+        registerFormPanel.add(registerFullnameLabel);
+        registerFormPanel.add(registerFullnameField);
+        registerFormPanel.add(registerEmailLabel);
+        registerFormPanel.add(registerEmailField);
         registerFormPanel.add(registerPasswordLabel);
         registerFormPanel.add(registerPasswordField);
         registerFormPanel.add(registerConfirmPasswordLabel);
@@ -186,9 +200,9 @@ public class AuthView {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = loginUsernameField.getText();
+                String email = loginEmailField.getText();
                 String password = new String(loginPasswordField.getPassword());
-                loginUser(username, password);
+                loginUser(email, password);
             }
             
         });
@@ -197,10 +211,11 @@ public class AuthView {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = registerUsernameField.getText();
+                String email = registerEmailField.getText();
+                String fullname = registerFullnameField.getText();
                 String password = new String(registerPasswordField.getPassword());
                 String confirmPassword = new String(registerConfirmPasswordField.getPassword());
-                registerUser(username, password, confirmPassword);
+                registerUser(email, password, confirmPassword, fullname);
             }
             
         });
@@ -220,12 +235,16 @@ public class AuthView {
         }
     }
 
-    private boolean isValidUsername(String username) {
-        return username.matches("^[a-zA-Z][a-zA-Z0-9]+$") && username.length() > 1 && username.length() < 51;
+    private boolean isValidEmail(String email) {
+        return email.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
     }
 
     private boolean isValidPassword(String password) {
-        return password.length() > 1 && password.length() < 51;
+        return password.length() > 2;
+    }
+
+    private boolean isValidFullname(String fullname) {
+        return fullname.matches("^[a-zA-Z\\s]+$") && fullname.length() > 1;
     }
 
     private void loadUsers() {
@@ -235,9 +254,10 @@ public class AuthView {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length == 2) {
-                    String username = parts[0];
+                    String email = parts[0];
                     String password = parts[1];
-                    _users.put(username, password);
+                    String fullname = parts[2];
+                    _users.add(new UserModel(email, fullname, password));
                 }
             }
             reader.close();
@@ -246,10 +266,10 @@ public class AuthView {
         }
     }
 
-    private void insertUser(String username, String password) {
+    private void insertUser(String email, String password, String fullname) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("./.data/users.txt", true));
-            writer.write(username + "," + password);
+            writer.write(email + "," + password + "," + fullname);
             writer.newLine();
             writer.close();
         } catch (Exception e) {
@@ -257,22 +277,28 @@ public class AuthView {
         }
     }
 
-    private boolean checkExistkUser(String username) {
-        return _users.containsKey(username);
+    private boolean checkExistUser(String email) {
+        return _users.stream().anyMatch(user -> user.getEmail().equals(email));
     }
 
-    private boolean checkLogin(String username, String password) {
-        return checkExistkUser(username) && _users.get(username).equals(password);
+    private boolean checkLogin(String email, String password) {
+        return _users.stream()
+                .anyMatch(user -> user.getEmail().equals(email) && user.getPassword().equals(password));
     }
 
-    private void registerUser(String username, String password, String confirmPassword) {
-        if (!isValidUsername(username)) {
-            showMessage("Invalid username, username only includes letters and numbers", false);
+    private void registerUser(String email, String password, String confirmPassword, String fullname) {
+        if (!isValidFullname(fullname)) {
+            showMessage("Invalid fullname, fullname contains only letters and spaces", false);
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            showMessage("Invalid email, email must have correct format", false);
             return;
         }
 
         if (!isValidPassword(password)) {
-            showMessage("Invalid password, password has at least 2 characters", false);
+            showMessage("Invalid password, password has at least 3 characters", false);
             return;
         }
         
@@ -281,31 +307,31 @@ public class AuthView {
             return;
         }
 
-        if (checkExistkUser(username)) {
-            showMessage("Username has been registered, please change to another name", false);
+        if (checkExistUser(email)) {
+            showMessage("Email has been registered, please change to another email", false);
             return;
         }
 
         clearField();
         JOptionPane.showMessageDialog(frame, "Register Successfully! Please login again.", "", JOptionPane.INFORMATION_MESSAGE);
         tabbedPane.setSelectedIndex(0);
-        insertUser(username, password);
-        _users.put(username, password);
+        insertUser(email, password, fullname);
+        _users.add(new UserModel(email, fullname, password));
     }
 
-    private void loginUser(String username, String password) {
-        if (!isValidUsername(username)) {
-            showMessage("Invalid username, username only includes letters and numbers", true);
+    private void loginUser(String email, String password) {
+        if (!isValidEmail(email)) {
+            showMessage("Invalid email, email must have correct format", true);
             return;
         }
 
         if (!isValidPassword(password)) {
-            showMessage("Invalid password, password has at least 2 characters", true);
+            showMessage("Invalid password, password has at least 3 characters", true);
             return;
         }
 
-        if (!checkLogin(username, password)) {
-            showMessage("Username or password not corrected, please try again", true);
+        if (checkLogin(email, password)) {
+            showMessage("Email or password not corrected, please try again", true);
             return;
         }
 
@@ -314,9 +340,10 @@ public class AuthView {
     }
 
     private void clearField() {
-        loginUsernameField.setText("");
+        loginEmailField.setText("");
         loginPasswordField.setText("");
-        registerUsernameField.setText("");
+        registerEmailField.setText("");
+        registerFullnameField.setText("");
         registerPasswordField.setText("");
         registerConfirmPasswordField.setText("");
     }
