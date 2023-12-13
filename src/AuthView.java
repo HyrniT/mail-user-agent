@@ -11,6 +11,7 @@ public class AuthView {
     private final String FontName = "Arial";
 
     private ArrayList<UserModel> _users = new ArrayList<>();
+    private UserModel _user = new UserModel();
 
     private JFrame frame;
     private JTabbedPane tabbedPane;
@@ -200,7 +201,7 @@ public class AuthView {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String email = loginEmailField.getText();
+                String email = loginEmailField.getText().trim();
                 String password = new String(loginPasswordField.getPassword());
                 loginUser(email, password);
             }
@@ -211,8 +212,8 @@ public class AuthView {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String email = registerEmailField.getText();
-                String fullname = registerFullnameField.getText();
+                String email = registerEmailField.getText().trim();
+                String fullname = registerFullnameField.getText().trim();
                 String password = new String(registerPasswordField.getPassword());
                 String confirmPassword = new String(registerConfirmPasswordField.getPassword());
                 registerUser(email, password, confirmPassword, fullname);
@@ -253,11 +254,11 @@ public class AuthView {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 2) {
+                if (parts.length == 3) {
                     String email = parts[0];
                     String password = parts[1];
                     String fullname = parts[2];
-                    _users.add(new UserModel(email, fullname, password));
+                    _users.add(new UserModel(email, password, fullname));
                 }
             }
             reader.close();
@@ -330,13 +331,24 @@ public class AuthView {
             return;
         }
 
-        if (checkLogin(email, password)) {
+        if (!checkLogin(email, password)) {
             showMessage("Email or password not corrected, please try again", true);
             return;
         }
 
-        // JOptionPane.showMessageDialog(frame, "Login Successfully!", "", JOptionPane.INFORMATION_MESSAGE);
-        showMainFrame();
+        String fullname = getFullnameByEmail(email);
+        System.out.println(fullname);
+        _user = new UserModel(email, fullname);
+        showMainView();
+    }
+
+    private String getFullnameByEmail(String email) {
+        for (UserModel user : _users) {
+            if (user.getEmail().equals(email)) {
+                return user.getFullname();
+            }
+        }
+        return "";
     }
 
     private void clearField() {
@@ -348,8 +360,8 @@ public class AuthView {
         registerConfirmPasswordField.setText("");
     }
 
-    private void showMainFrame() {
-        MainView mainView = new MainView();
+    private void showMainView() {
+        MainView mainView = new MainView(_user);
         mainView.show();
         frame.setVisible(false);
     }
