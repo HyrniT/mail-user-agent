@@ -15,13 +15,21 @@ public class MainView {
     private JButton newMailButton;
 
     private UserModel _user;
+    private static ConfigModel _config;
 
     public MainView(UserModel user) {
         this._user = user;
+        new Thread(() -> {
+            _config = Helper.readXML("config.xml");
+        }).start();
         initializeUI();
     }
 
+    // Mốt xóa thằng này
     public MainView() {
+        new Thread(() -> {
+            _config = Helper.readXML("config.xml");
+        }).start();
         initializeUI();
     }
 
@@ -39,7 +47,7 @@ public class MainView {
         topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
         topPanel.setBackground(Color.RED);
 
-        newMailButton = new JButton("New Mail");
+        newMailButton = new JButton("NEW EMAIL");
         newMailButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         newMailButton.setFont(new Font(FontName, Font.BOLD, 14));      
         newMailButton.setMargin(new Insets(5, 20, 5, 20));
@@ -60,7 +68,7 @@ public class MainView {
 
         JList<String> folderList = new JList<>(defaultListModel);
         folderList.setCellRenderer(new FolderListCellRender());
-        folderList.setBorder(BorderFactory.createLineBorder(OnPrimaryColor, 1));
+        folderList.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         leftPanel.add(folderList, BorderLayout.NORTH);
 
         JPanel mailPanel = new JPanel();
@@ -88,6 +96,7 @@ public class MainView {
         frame.add(mainPanel);
     }
 
+    // Mốt mở comment cho thằng này
     public void show() {
         SwingUtilities.invokeLater(() -> {
             // frame.setTitle(_user.toString());
@@ -95,10 +104,12 @@ public class MainView {
         });
     }
 
+    // Mốt xóa hàm main
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             // frame.setVisible(true);
             new MainView().show();
+            System.out.println(_config.getMailServer());
         });
     }
 }

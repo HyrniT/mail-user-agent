@@ -12,7 +12,7 @@ public class FolderListCellRender extends JPanel implements ListCellRenderer<Str
         add(titleLabel, BorderLayout.CENTER);
 
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.BLACK, 1),
+                BorderFactory.createLineBorder(Color.GRAY, 1),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
     }
