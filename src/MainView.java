@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 
 public class MainView {
     private final Color PrimaryColor = Color.WHITE;
@@ -13,10 +14,10 @@ public class MainView {
     private JFrame frame;
     private JButton newMailButton;
 
-    private UserModel user;
+    private UserModel _user;
 
     public MainView(UserModel user) {
-        this.user = user;
+        this._user = user;
         initializeUI();
     }
 
@@ -28,24 +29,39 @@ public class MainView {
         frame = new JFrame("Hmail");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-        frame.setSize(1200, 800);
+        frame.setSize(900, 600);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
         // Top Panel
         JPanel topPanel = new JPanel();
-        topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
         topPanel.setBackground(Color.RED);
 
-        newMailButton = new JButton("New Email");
+        newMailButton = new JButton("New Mail");
         newMailButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        newMailButton.setFont(new Font(FontName, Font.BOLD, 14));      
+        newMailButton.setMargin(new Insets(5, 20, 5, 20));
         newMailButton.setFocusPainted(false);
 
         topPanel.add(newMailButton);
 
         JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(Color.GREEN);
+        // leftPanel.setBackground(Color.GREEN);
+        leftPanel.setLayout(new BorderLayout());
+
+        DefaultListModel<String> defaultListModel = new DefaultListModel<>();
+        defaultListModel.addElement("Inbox");
+        defaultListModel.addElement("Project");
+        defaultListModel.addElement("Important");
+        defaultListModel.addElement("Work");
+        defaultListModel.addElement("Spam");
+
+        JList<String> folderList = new JList<>(defaultListModel);
+        folderList.setCellRenderer(new FolderListCellRender());
+        folderList.setBorder(BorderFactory.createLineBorder(OnPrimaryColor, 1));
+        leftPanel.add(folderList, BorderLayout.NORTH);
 
         JPanel mailPanel = new JPanel();
         mailPanel.setBackground(Color.BLACK);
@@ -54,8 +70,8 @@ public class MainView {
         mailDetailPanel.setBackground(Color.ORANGE);
 
         JSplitPane mailSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mailPanel, mailDetailPanel);
-        mailSplitPane.setDividerSize(5);
-        mailSplitPane.setDividerLocation(200);
+        mailSplitPane.setDividerSize(2);
+        mailSplitPane.setDividerLocation(150);
         
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
@@ -63,8 +79,8 @@ public class MainView {
         rightPanel.add(mailSplitPane, BorderLayout.CENTER);
 
         JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
-        mainSplitPane.setDividerSize(5);
-        mainSplitPane.setDividerLocation(200);
+        mainSplitPane.setDividerSize(2);
+        mainSplitPane.setDividerLocation(150);
 
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(mainSplitPane, BorderLayout.CENTER);
@@ -74,8 +90,15 @@ public class MainView {
 
     public void show() {
         SwingUtilities.invokeLater(() -> {
-            frame.setTitle(user.toString());
+            // frame.setTitle(_user.toString());
             frame.setVisible(true);
+        });
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            // frame.setVisible(true);
+            new MainView().show();
         });
     }
 }
