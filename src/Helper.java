@@ -1,4 +1,9 @@
 import javax.xml.parsers.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.*;
 import java.io.*;
 import java.util.*;
@@ -41,11 +46,49 @@ public class Helper {
                 processFilterType("Spam");
             }
             config.setFilterMap(filterMap);
-            // System.out.println(config.getFilterMap().get("Project").get("From").get(0));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return config;
+    }
+
+    public static void modifyXML(String tagName, String parentTagName, String newValue) {
+        try {
+            File file = new File("config.xml");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(file);
+
+            NodeList parentList = doc.getElementsByTagName(parentTagName);
+
+            if (parentList.getLength() > 0) {
+                Node parent = parentList.item(0);
+
+                if (parent.getNodeType() == Node.ELEMENT_NODE) {
+                    Element parentElement = (Element) parent;
+                    NodeList nodeList = parentElement.getElementsByTagName(tagName);
+
+                    if (nodeList.getLength() > 0) {
+                        Node node = nodeList.item(0);
+
+                        if (node.getNodeType() == Node.ELEMENT_NODE) {
+                            Element element = (Element) node;
+                            element.setTextContent(newValue);
+
+                            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                            Transformer transformer = transformerFactory.newTransformer();
+                            DOMSource source = new DOMSource(doc);
+                            StreamResult result = new StreamResult(new File("config.xml"));
+                            transformer.transform(source, result);
+
+                            System.out.println(tagName + " modified: " + newValue);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void processFilterType(String filterType) {
