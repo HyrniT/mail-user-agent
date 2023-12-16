@@ -104,10 +104,8 @@ public class MainView {
 
     // Mốt mở comment cho thằng này
     public void show() {
-        SwingUtilities.invokeLater(() -> {
-            // frame.setTitle(_user.toString());
-            frame.setVisible(true);
-        });
+        // frame.setTitle(_user.toString());
+        frame.setVisible(true);
     }
 
     // Mốt xóa hàm main

@@ -223,9 +223,7 @@ public class AuthView {
     }
 
     public void show() {
-        SwingUtilities.invokeLater(() -> {
-            frame.setVisible(true);
-        });
+        frame.setVisible(true);
     }
 
     private void showMessage(String message, boolean type) {

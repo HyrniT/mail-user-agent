@@ -1,6 +1,9 @@
+import javax.swing.SwingUtilities;
+
 public class App {
     public static void main(String[] args) throws Exception {
-        new AuthView().show();
-        // new MainView().show();
+        SwingUtilities.invokeLater(() -> {
+            new AuthView().show();
+        });
     }
 }
