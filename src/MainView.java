@@ -45,7 +45,7 @@ public class MainView {
 
         // Top Panel
         JPanel topPanel = new JPanel();
-        topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
+        topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
         topPanel.setBackground(PrimaryColor);
         topPanel.setForeground(OnPrimaryColor);
 
