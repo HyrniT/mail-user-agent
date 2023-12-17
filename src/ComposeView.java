@@ -242,10 +242,22 @@ public class ComposeView {
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File[] files = fileChooser.getSelectedFiles();
                     String filesName = "";
+
                     for (File file : files) {
+                        long fileSizeInBytes = file.length();
+                        long fileSizeInKB = fileSizeInBytes / 1024;
+                        long fileSizeInMB = fileSizeInKB / 1024;
+
+                        if (fileSizeInMB > 3) {
+                            JOptionPane.showMessageDialog(frame, "File " + file.getName() + " is larger than 3MB.",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         filesName += file.getName() + ", ";
                         attachmentFiles[attachmentFiles.length] = file.getAbsolutePath();
                     }
+
                     // filesName = filesName.substring(0, filesName.length() - 2);
                     attachLabel.setText(filesName);
                 }
