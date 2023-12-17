@@ -128,7 +128,7 @@ public class Helper {
 
             System.out.println(reader.readLine());
 
-            sendCommand(writer, "MAIL FROM: <" + user.getEmail() + ">");
+            sendCommand(writer, "MAIL FROM:<" + user.getEmail() + ">");
 
             System.out.println(reader.readLine());
 
@@ -141,7 +141,7 @@ public class Helper {
             
             if (mail.getCc() != null) {
                 for (String cc : mail.getCc()) {
-                    sendCommand(writer, "RCPT TO: <" + cc + ">");
+                    sendCommand(writer, "RCPT TO:<" + cc + ">");
                     System.out.println(reader.readLine());
                 }
             }
@@ -164,6 +164,10 @@ public class Helper {
 
             sendCommand(writer, "Date: " + dateHeader);
 
+            sendCommand(writer, "MIME-Version: 1.0");
+
+            sendCommand(writer, "User-Agent: Mozilla Thunderbird");
+
             sendCommand(writer, "From: " + mail.getFrom());
             if (mail.getTo() != null && mail.getTo().length > 0) {
                 sendCommand(writer, "To: " + String.join(",", mail.getTo()));
@@ -182,7 +186,6 @@ public class Helper {
             }
 
             if (mail.getContent().length() > 0) {
-                sendCommand(writer, "");
                 sendCommand(writer, "Content-Type: text/plain; charset=\"UTF-8\"");
                 sendCommand(writer, "Content-Transfer-Encoding: 7bit");
                 sendCommand(writer, "");
