@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Config>
     <General>
-        <MailServer>192.168.1.10</MailServer>
-        <SMTP>3333</SMTP>
-        <POP3>4444</POP3>
+        <MailServer>localhost</MailServer>
+        <SMTP>2225</SMTP>
+        <POP3>3335</POP3>
         <Autoload>10</Autoload>
     </General>
     <Filter>

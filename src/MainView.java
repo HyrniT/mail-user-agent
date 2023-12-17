@@ -22,6 +22,7 @@ public class MainView {
             _config = Helper.readXML();
         }).start();
         initializeUI();
+        setupListeners();
     }
 
     // Mốt xóa thằng này
@@ -100,6 +101,15 @@ public class MainView {
         mainPanel.add(mainSplitPane, BorderLayout.CENTER);
 
         frame.add(mainPanel);
+    }
+
+    private void setupListeners() {
+        newMailButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ComposeView(_user, _config).show();
+            }
+        });
     }
 
     // Mốt mở comment cho thằng này

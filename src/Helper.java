@@ -6,6 +6,9 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.*;
 import java.io.*;
+import java.net.*;
+import java.nio.file.*;
+import java.text.*;
 import java.util.*;
 
 public class Helper {
@@ -107,6 +110,126 @@ public class Helper {
 
                 filterMap.put(filterType, map);
             }
+        }
+    }
+
+    public static void sendMail(UserModel user, EmailModel mail, ConfigModel config) {
+        try {
+            String host = config.getMailServer();
+            int port = Integer.parseInt(config.getSMTP());
+
+            Socket socket = new Socket(host, port);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+            System.out.println(reader.readLine());
+
+            sendCommand(writer, "HELO " + host);
+
+            System.out.println(reader.readLine());
+
+            sendCommand(writer, "MAIL FROM: <" + user.getEmail() + ">");
+
+            System.out.println(reader.readLine());
+
+            if (mail.getTo() != null) {
+                for (String to : mail.getTo()) {
+                    sendCommand(writer, "RCPT TO: <" + to + ">");
+                    System.out.println(reader.readLine());
+                }
+            }
+            
+            if (mail.getCc() != null) {
+                for (String cc : mail.getCc()) {
+                    sendCommand(writer, "RCPT TO: <" + cc + ">");
+                    System.out.println(reader.readLine());
+                }
+            }
+
+            if (mail.getBcc() != null) {
+                for (String bcc : mail.getBcc()) {
+                    sendCommand(writer, "RCPT TO: <" + bcc + ">");
+                    System.out.println(reader.readLine());
+                }
+            }
+
+            sendCommand(writer, "DATA");
+
+            System.out.println(reader.readLine());
+
+            Date currentDate = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+            dateFormat.setTimeZone(TimeZone.getDefault());
+            String dateHeader = dateFormat.format(currentDate);
+
+            sendCommand(writer, "Date: " + dateHeader);
+
+            sendCommand(writer, "From: " + mail.getFrom());
+            if (mail.getTo() != null && mail.getTo().length > 0) {
+                sendCommand(writer, "To: " + String.join(",", mail.getTo()));
+            }
+
+            if (mail.getCc() != null && mail.getCc().length > 0) {
+                sendCommand(writer, "Cc: " + String.join(",", mail.getCc()));
+            }
+
+            if (mail.getBcc() != null && mail.getBcc().length > 0) {
+                sendCommand(writer, "Bcc: " + String.join(",", mail.getBcc()));
+            }
+            if (mail.getTitle().length() > 0) {
+                sendCommand(writer, "Subject: " + mail.getTitle());
+            }
+            if (mail.getContent().length() > 0) {
+                sendCommand(writer, "");
+                sendCommand(writer, "Content-Type: text/plain; charset=\"UTF-8\"");
+                sendCommand(writer, "Content-Transfer-Encoding: 7bit");
+                sendCommand(writer, mail.getContent());
+                sendCommand(writer, "");
+            }
+
+            if (mail.getAttachmentFiles() != null && mail.getAttachmentFiles().length > 0) {
+                for (String attachmentFile : mail.getAttachmentFiles()) {
+                    sendCommand(writer, "Content-Type: multipart/mixed; boundary=separator");
+                    sendCommand(writer, "");
+                    File file = new File(attachmentFile);
+                    if (file.exists()) {
+                        sendCommand(writer, "");
+                        sendCommand(writer, "--separator");
+                        String contentType = Files.probeContentType(Path.of(attachmentFile));
+                        sendCommand(writer, "Content-Type: " + contentType + "; name=\"" + file.getName() + "\"");
+                        sendCommand(writer, "Content-Disposition: attachment; filename=\"" + file.getName() + "\"");
+                        sendCommand(writer, "Content-Transfer-Encoding: base64");
+                        sendCommand(writer, "");
+
+                        byte[] fileBytes = Files.readAllBytes(Paths.get(attachmentFile));
+                        String base64EncodedFile = Base64.getEncoder().encodeToString(fileBytes);
+                        sendCommand(writer, base64EncodedFile);
+                        sendCommand(writer, "");
+                    }
+                    sendCommand(writer, "");
+                    sendCommand(writer, "--separator--");
+                }
+            }
+            sendCommand(writer, ".");
+
+            System.out.println(reader.readLine());
+
+            sendCommand(writer, "QUIT");
+
+            System.out.println(reader.readLine());
+            
+            socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void sendCommand(BufferedWriter writer, String command) {
+        try {
+            writer.write(command + "\r\n");
+            writer.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.*;
 
 import javax.swing.*;
 
@@ -31,6 +30,8 @@ public class ComposeView {
 
     // Mốt xóa thằng này
     public ComposeView() {
+        _config = Helper.readXML();
+        _user = new UserModel();
         initializeUI();
         setupListeners();
     }
@@ -101,7 +102,7 @@ public class ComposeView {
         fromTextField.setBackground(PrimaryColor);
         fromTextField.setForeground(OnPrimaryColor);
         fromTextField.setCaretColor(OnPrimaryColor);
-        fromTextField.setText(_user.toString());
+        // fromTextField.setText(_user.getEmail());
 
         toTextField = new JTextField();
         toTextField.setPreferredSize(new Dimension(500, 24));
@@ -193,15 +194,23 @@ public class ComposeView {
                 String title = titleTextField.getText();
                 String content = contentTextArea.getText();
 
-                if (from.isEmpty() || to.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Please fill all required fields!", "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+                // if (from.isEmpty() || to.isEmpty()) {
+                //     JOptionPane.showMessageDialog(frame, "Please fill all required fields!", "Error",
+                //             JOptionPane.ERROR_MESSAGE);
+                //     return;
+                // }
+                
+                String[] toList = null, ccList = null, bccList = null;
 
-                String[] toList = to.split(",");
-                String[] ccList = cc.split(",");
-                String[] bccList = bcc.split(",");
+                if (!to.trim().isEmpty()) {
+                    toList = to.split(",");
+                }
+                if (!cc.trim().isEmpty()) {
+                    ccList = cc.split(",");
+                }
+                if (!bcc.trim().isEmpty()) {
+                    bccList = bcc.split(",");
+                }
 
                 if (attachLabel.getText().length() > 0) {
                     attachmentFiles = attachLabel.getText().split(", ");
@@ -210,15 +219,14 @@ public class ComposeView {
                     _email = new EmailModel(from, toList, ccList, bccList, title, content);
                 }
 
-                try {
-                    // _user.sendEmail(_email);
-                    JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    frame.dispose();
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame, "Failed to send email!", "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
+                // mốt xóa dòng bên dưới
+                _user.setEmail(from);
+                //
+
+                Helper.sendMail(_user, _email, _config);
+                // JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
+                //         JOptionPane.INFORMATION_MESSAGE);
+                frame.dispose();
             }
         });
 
