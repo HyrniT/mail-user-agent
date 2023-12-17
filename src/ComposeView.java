@@ -10,14 +10,33 @@ public class ComposeView {
     private final Color OnPrimaryColor = Color.BLACK;
     private final String FontName = "Arial";
 
-    private JFrame frame;
+    private UserModel _user;
+    private ConfigModel _config;
+    private EmailModel _email;
 
+    private String[] attachmentFiles;
+
+    private JFrame frame;
+    private JTextField fromTextField, toTextField, ccTextField, bccTextField, titleTextField;
+    private JButton sendButton, attachButton;
+    private JTextArea contentTextArea;
+    private JLabel attachLabel;
+
+    public ComposeView(UserModel user, ConfigModel config) {
+        this._user = user;
+        this._config = config;
+        initializeUI();
+        setupListeners();
+    }
+
+    // Mốt xóa thằng này
     public ComposeView() {
         initializeUI();
+        setupListeners();
     }
 
     public void initializeUI() {
-        frame = new JFrame("Hmail");
+        frame = new JFrame("New Email");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setSize(600, 600);
@@ -29,9 +48,23 @@ public class ComposeView {
 
         // Top Panel
         JPanel topPanel = new JPanel();
-        topPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 10));
         topPanel.setBackground(PrimaryColor);
         topPanel.setForeground(OnPrimaryColor);
+
+        sendButton = new JButton("Send");
+        sendButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        sendButton.setFont(new Font(FontName, Font.BOLD, 13));
+        sendButton.setMargin(new Insets(0, 20, 0, 20));
+        sendButton.setFocusPainted(false);
+
+        topPanel.add(sendButton);
+
+        // Center Panel
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        centerPanel.setBackground(PrimaryColor);
+        centerPanel.setForeground(OnPrimaryColor);
 
         JLabel fromLabel = new JLabel("From:");
         fromLabel.setFont(new Font(FontName, Font.BOLD, 13));
@@ -63,49 +96,153 @@ public class ComposeView {
         titleLabel.setBackground(PrimaryColor);
         titleLabel.setPreferredSize(new Dimension(60, 24));
 
-        JTextField fromTextField = new JTextField();
+        fromTextField = new JTextField();
         fromTextField.setPreferredSize(new Dimension(500, 24));
         fromTextField.setBackground(PrimaryColor);
         fromTextField.setForeground(OnPrimaryColor);
         fromTextField.setCaretColor(OnPrimaryColor);
+        fromTextField.setText(_user.toString());
 
-        JTextField toTextField = new JTextField();
+        toTextField = new JTextField();
         toTextField.setPreferredSize(new Dimension(500, 24));
         toTextField.setBackground(PrimaryColor);
         toTextField.setForeground(OnPrimaryColor);
         toTextField.setCaretColor(OnPrimaryColor);
 
-        JTextField ccTextField = new JTextField();
+        ccTextField = new JTextField();
         ccTextField.setPreferredSize(new Dimension(500, 24));
         ccTextField.setBackground(PrimaryColor);
         ccTextField.setForeground(OnPrimaryColor);
         ccTextField.setCaretColor(OnPrimaryColor);
 
-        JTextField bccTextField = new JTextField();
+        bccTextField = new JTextField();
         bccTextField.setPreferredSize(new Dimension(500, 24));
         bccTextField.setBackground(PrimaryColor);
         bccTextField.setForeground(OnPrimaryColor);
         bccTextField.setCaretColor(OnPrimaryColor);
 
-        JTextField titleTextField = new JTextField();
+        titleTextField = new JTextField();
         titleTextField.setPreferredSize(new Dimension(500, 24));
         titleTextField.setBackground(PrimaryColor);
         titleTextField.setForeground(OnPrimaryColor);
         titleTextField.setCaretColor(OnPrimaryColor);
 
-        topPanel.add(fromLabel);
-        topPanel.add(fromTextField);
-        topPanel.add(toLabel);
-        topPanel.add(toTextField);
-        topPanel.add(ccLabel);
-        topPanel.add(ccTextField);
-        topPanel.add(bccLabel);
-        topPanel.add(bccTextField);
-        topPanel.add(titleLabel);
-        topPanel.add(titleTextField);
+        contentTextArea = new JTextArea();
+        contentTextArea.setBackground(PrimaryColor);
+        contentTextArea.setForeground(OnPrimaryColor);
+        contentTextArea.setCaretColor(OnPrimaryColor);
+        contentTextArea.setLineWrap(true);
+        contentTextArea.setWrapStyleWord(true);
+        contentTextArea.setFont(new Font(FontName, Font.PLAIN, 13));
+        contentTextArea.setBorder(BorderFactory.createLineBorder(OnPrimaryColor));
 
-        mainPanel.add(topPanel, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(contentTextArea);
+        scrollPane.setPreferredSize(new Dimension(560, 330));
+        scrollPane.setBackground(PrimaryColor);
+        scrollPane.setForeground(OnPrimaryColor);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+
+        centerPanel.add(fromLabel);
+        centerPanel.add(fromTextField);
+        centerPanel.add(toLabel);
+        centerPanel.add(toTextField);
+        centerPanel.add(ccLabel);
+        centerPanel.add(ccTextField);
+        centerPanel.add(bccLabel);
+        centerPanel.add(bccTextField);
+        centerPanel.add(titleLabel);
+        centerPanel.add(titleTextField);
+        centerPanel.add(scrollPane);
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        bottomPanel.setBackground(PrimaryColor);
+        bottomPanel.setForeground(OnPrimaryColor);
+
+        attachButton = new JButton("Attach");
+        attachButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        attachButton.setFont(new Font(FontName, Font.BOLD, 13));
+        attachButton.setMargin(new Insets(0, 20, 0, 20));
+        attachButton.setFocusPainted(false);
+
+        attachLabel = new JLabel();
+        attachLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        attachLabel.setForeground(OnPrimaryColor);
+        attachLabel.setBackground(PrimaryColor);
+        attachLabel.setPreferredSize(new Dimension(460, 24));
+        // attachLabel.setBorder(BorderFactory.createLineBorder(OnPrimaryColor));
+
+        bottomPanel.add(attachButton);
+        bottomPanel.add(attachLabel);
+
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
         frame.add(mainPanel);
+    }
+
+    private void setupListeners() {
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String from = fromTextField.getText();
+                String to = toTextField.getText();
+                String cc = ccTextField.getText();
+                String bcc = bccTextField.getText();
+                String title = titleTextField.getText();
+                String content = contentTextArea.getText();
+
+                if (from.isEmpty() || to.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Please fill all required fields!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                String[] toList = to.split(",");
+                String[] ccList = cc.split(",");
+                String[] bccList = bcc.split(",");
+
+                if (attachLabel.getText().length() > 0) {
+                    attachmentFiles = attachLabel.getText().split(", ");
+                    _email = new EmailModel(from, toList, ccList, bccList, title, content, attachmentFiles);
+                } else {
+                    _email = new EmailModel(from, toList, ccList, bccList, title, content);
+                }
+
+                try {
+                    // _user.sendEmail(_email);
+                    JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    frame.dispose();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Failed to send email!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        attachButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setMultiSelectionEnabled(true);
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fileChooser.setDialogTitle("Choose file(s) to attach");
+
+                int result = fileChooser.showOpenDialog(frame);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File[] files = fileChooser.getSelectedFiles();
+                    String filesName = "";
+                    for (File file : files) {
+                        filesName += file.getName() + ", ";
+                        attachmentFiles[attachmentFiles.length] = file.getAbsolutePath();
+                    }
+                    // filesName = filesName.substring(0, filesName.length() - 2);
+                    attachLabel.setText(filesName);
+                }
+            }
+        });
     }
 
     public void show() {

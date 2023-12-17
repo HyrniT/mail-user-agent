@@ -277,12 +277,12 @@ public class AuthView {
     }
 
     private boolean checkExistUser(String email) {
-        return _users.stream().anyMatch(user -> user.get_email().equals(email));
+        return _users.stream().anyMatch(user -> user.getEmail().equals(email));
     }
 
     private boolean checkLogin(String email, String password) {
         return _users.stream()
-                .anyMatch(user -> user.get_email().equals(email) && user.get_password().equals(password));
+                .anyMatch(user -> user.getEmail().equals(email) && user.getPassword().equals(password));
     }
 
     private void registerUser(String email, String password, String confirmPassword, String fullname) {
@@ -335,15 +335,15 @@ public class AuthView {
         }
 
         String fullname = getFullnameByEmail(email);
-        _user.set_email(email);
-        _user.set_fullname(fullname);
+        _user.setEmail(email);
+        _user.setFullname(fullname);
         showMainView();
     }
 
     private String getFullnameByEmail(String email) {
         for (UserModel user : _users) {
-            if (user.get_email().equals(email)) {
-                return user.get_fullname();
+            if (user.getEmail().equals(email)) {
+                return user.getFullname();
             }
         }
         return "";

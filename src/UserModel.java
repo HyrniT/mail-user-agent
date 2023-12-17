@@ -11,27 +11,27 @@ public class UserModel {
         this._fullname = fullname;
     }
 
-    public String get_email() {
+    public String getEmail() {
         return this._email;
     }
 
-    public String get_password() {
+    public String getPassword() {
         return this._password;
     }
 
-    public String get_fullname() {
+    public String getFullname() {
         return this._fullname;
     }
 
-    public void set_email(String email) {
+    public void setEmail(String email) {
         this._email = email;
     }
 
-    public void set_password(String password) {
+    public void setPassword(String password) {
         this._password = password;
     }
 
-    public void set_fullname(String fullname) {
+    public void setFullname(String fullname) {
         this._fullname = fullname;
     }
 
