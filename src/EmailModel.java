@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class EmailModel {
     private String from;
     private String[] to;
@@ -5,7 +7,7 @@ public class EmailModel {
     private String[] bcc;
     private String title;
     private String content;
-    private String[] attachmentFiles;
+    private List<String> attachmentFiles;
 
     public EmailModel() {
     }
@@ -19,7 +21,7 @@ public class EmailModel {
         this.content = content;
     }
 
-    public EmailModel(String from, String[] to, String[] cc, String[] bcc, String title, String content, String[] attachmentFiles) {
+    public EmailModel(String from, String[] to, String[] cc, String[] bcc, String title, String content, List<String> attachmentFiles) {
         this.from = from;
         this.to = to;
         this.cc = cc;
@@ -53,7 +55,7 @@ public class EmailModel {
         return content;
     }
 
-    public String[] getAttachmentFiles() {
+    public List<String> getAttachmentFiles() {
         return attachmentFiles;
     }
 
@@ -81,7 +83,7 @@ public class EmailModel {
         this.content = content;
     }
 
-    public void setAttachmentFiles(String[] attachmentFiles) {
+    public void setAttachmentFiles(List<String> attachmentFiles) {
         this.attachmentFiles = attachmentFiles;
     }
 }

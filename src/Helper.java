@@ -187,7 +187,7 @@ public class Helper {
                 sendCommand(writer, "");
             }
 
-            if (mail.getAttachmentFiles() != null && mail.getAttachmentFiles().length > 0) {
+            if (mail.getAttachmentFiles() != null && mail.getAttachmentFiles().size() > 0) {
                 for (String attachmentFile : mail.getAttachmentFiles()) {
                     sendCommand(writer, "Content-Type: multipart/mixed; boundary=separator");
                     sendCommand(writer, "");

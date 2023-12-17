@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -13,7 +16,7 @@ public class ComposeView {
     private ConfigModel _config;
     private EmailModel _email;
 
-    private String[] attachmentFiles;
+    private List<String> attachmentFiles = new ArrayList<>();
 
     private JFrame frame;
     private JTextField fromTextField, toTextField, ccTextField, bccTextField, titleTextField;
@@ -213,7 +216,7 @@ public class ComposeView {
                 }
 
                 if (attachLabel.getText().length() > 0) {
-                    attachmentFiles = attachLabel.getText().split(", ");
+                    attachmentFiles = Arrays.asList(attachLabel.getText().split(", "));
                     _email = new EmailModel(from, toList, ccList, bccList, title, content, attachmentFiles);
                 } else {
                     _email = new EmailModel(from, toList, ccList, bccList, title, content);
@@ -255,7 +258,7 @@ public class ComposeView {
                         }
 
                         filesName += file.getName() + ", ";
-                        attachmentFiles[attachmentFiles.length] = file.getAbsolutePath();
+                        attachmentFiles.add(file.getAbsolutePath());
                     }
 
                     // filesName = filesName.substring(0, filesName.length() - 2);
