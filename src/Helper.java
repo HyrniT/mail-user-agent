@@ -176,39 +176,43 @@ public class Helper {
             if (mail.getBcc() != null && mail.getBcc().length > 0) {
                 sendCommand(writer, "Bcc: " + String.join(",", mail.getBcc()));
             }
+
             if (mail.getTitle().length() > 0) {
                 sendCommand(writer, "Subject: " + mail.getTitle());
             }
+
             if (mail.getContent().length() > 0) {
                 sendCommand(writer, "");
                 sendCommand(writer, "Content-Type: text/plain; charset=\"UTF-8\"");
                 sendCommand(writer, "Content-Transfer-Encoding: 7bit");
-                sendCommand(writer, mail.getContent());
                 sendCommand(writer, "");
+                sendCommand(writer, mail.getContent());
             }
 
+            
             if (mail.getAttachmentFiles() != null && mail.getAttachmentFiles().size() > 0) {
+                sendCommand(writer, "");
+                sendCommand(writer, "Content-Type: multipart/mixed; boundary=separator");
                 for (String attachmentFile : mail.getAttachmentFiles()) {
-                    sendCommand(writer, "Content-Type: multipart/mixed; boundary=separator");
-                    sendCommand(writer, "");
                     File file = new File(attachmentFile);
+                    System.out.println(attachmentFile);
                     if (file.exists()) {
-                        sendCommand(writer, "");
                         sendCommand(writer, "--separator");
                         String contentType = Files.probeContentType(Path.of(attachmentFile));
                         sendCommand(writer, "Content-Type: " + contentType + "; name=\"" + file.getName() + "\"");
                         sendCommand(writer, "Content-Disposition: attachment; filename=\"" + file.getName() + "\"");
                         sendCommand(writer, "Content-Transfer-Encoding: base64");
+
                         sendCommand(writer, "");
 
                         byte[] fileBytes = Files.readAllBytes(Paths.get(attachmentFile));
                         String base64EncodedFile = Base64.getEncoder().encodeToString(fileBytes);
                         sendCommand(writer, base64EncodedFile);
+
                         sendCommand(writer, "");
                     }
-                    sendCommand(writer, "");
-                    sendCommand(writer, "--separator--");
                 }
+                sendCommand(writer, "--separator--");
             }
             sendCommand(writer, ".");
 

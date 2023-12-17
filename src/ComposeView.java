@@ -216,7 +216,6 @@ public class ComposeView {
                 }
 
                 if (attachLabel.getText().length() > 0) {
-                    attachmentFiles = Arrays.asList(attachLabel.getText().split(", "));
                     _email = new EmailModel(from, toList, ccList, bccList, title, content, attachmentFiles);
                 } else {
                     _email = new EmailModel(from, toList, ccList, bccList, title, content);
@@ -229,7 +228,7 @@ public class ComposeView {
                 Helper.sendMail(_user, _email, _config);
                 // JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
                 //         JOptionPane.INFORMATION_MESSAGE);
-                frame.dispose();
+                // frame.dispose();
             }
         });
 
@@ -261,7 +260,6 @@ public class ComposeView {
                         attachmentFiles.add(file.getAbsolutePath());
                     }
 
-                    // filesName = filesName.substring(0, filesName.length() - 2);
                     attachLabel.setText(filesName);
                 }
             }
