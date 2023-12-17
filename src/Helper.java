@@ -187,6 +187,7 @@ public class Helper {
                 sendCommand(writer, "Content-Transfer-Encoding: 7bit");
                 sendCommand(writer, "");
                 sendCommand(writer, mail.getContent());
+                sendCommand(writer, "");
             }
 
             

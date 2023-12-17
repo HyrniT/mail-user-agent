@@ -196,11 +196,11 @@ public class ComposeView {
                 String title = titleTextField.getText();
                 String content = contentTextArea.getText();
 
-                // if (from.isEmpty() || to.isEmpty()) {
-                //     JOptionPane.showMessageDialog(frame, "Please fill all required fields!", "Error",
-                //             JOptionPane.ERROR_MESSAGE);
-                //     return;
-                // }
+                if (from.isEmpty() || to.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Please fill all required fields!", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 
                 String[] toList = null, ccList = null, bccList = null;
 
@@ -227,7 +227,14 @@ public class ComposeView {
                 Helper.sendMail(_user, _email, _config);
                 // JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
                 //         JOptionPane.INFORMATION_MESSAGE);
-                // frame.dispose();
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    frame.dispose();
+                }).start();
             }
         });
 
