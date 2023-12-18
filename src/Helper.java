@@ -232,11 +232,68 @@ public class Helper {
         }
     }
 
+    public static void getMail(UserModel user, ConfigModel config) {
+        try (Socket socket = new Socket(config.getMailServer(), Integer.parseInt(config.getPOP3()));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+
+            // Kết nối thành công
+            System.out.println(reader.readLine());
+
+            sendCommand(writer, "USER " + user.getEmail());
+            System.out.println(reader.readLine());
+
+            sendCommand(writer, "PASS " + user.getPassword());
+            System.out.println(reader.readLine());
+
+            sendCommand(writer, "STAT");
+            String statResponse = reader.readLine();
+            System.out.println(statResponse);
+
+            if (statResponse.startsWith("+OK") && statResponse.split(" ").length > 1) {
+                int numOfEmails = Integer.parseInt(statResponse.split(" ")[1]);
+
+                // Lấy nội dung của từng email
+                for (int i = 1; i <= numOfEmails; i++) {
+                    // Gửi lệnh RETR để lấy nội dung email thứ i
+                    sendCommand(writer, "RETR " + i);
+
+                    // Đọc và lưu nội dung email
+                    String emailLine;
+                    StringBuilder emailContent = new StringBuilder();
+                    while (!(emailLine = reader.readLine()).equals(".")) {
+                        emailContent.append(emailLine).append("\n");
+                    }
+
+                    // Lưu nội dung email vào file
+                    saveEmailContent(emailContent.toString(), ".data" + File.separatorChar + user.getEmail(), "email_" + i + ".txt");
+
+                    System.out.println("Email saved: " + user.getEmail() + "/email_" + i + ".txt");
+                    System.out.println("--------------------------------------------------");
+                }
+            }
+
+            // Gửi lệnh QUIT để kết thúc phiên làm việc
+            sendCommand(writer, "QUIT");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void sendCommand(BufferedWriter writer, String command) {
         try {
             writer.write(command + "\r\n");
             writer.flush();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveEmailContent(String content, String senderEmail, String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(senderEmail, fileName)))) {
+            writer.write(content);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

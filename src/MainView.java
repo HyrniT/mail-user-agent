@@ -31,6 +31,7 @@ public class MainView {
             _config = Helper.readXML();
         }).start();
         initializeUI();
+        setupListeners();
     }
 
     private void initializeUI() {

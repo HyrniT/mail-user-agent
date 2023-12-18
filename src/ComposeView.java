@@ -277,10 +277,4 @@ public class ComposeView {
             frame.setVisible(true);
         });
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new ComposeView().show();
-        });
-    }
 }
