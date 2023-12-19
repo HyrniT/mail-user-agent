@@ -7,6 +7,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.text.*;
 import java.util.*;
@@ -17,6 +18,7 @@ public class Helper {
     private static ConfigModel config;
     private static Map<String, Map<String, List<String>>> filterMap = new HashMap<>();
     private static Element filterElement;
+    private static List<String> attachmentFiles = new ArrayList<>();
 
     public static ConfigModel readXML() {
         try {
@@ -234,7 +236,9 @@ public class Helper {
         }
     }
 
-    public static void getMail(UserModel user, ConfigModel config) {
+    public static List<EmailModel> getMail(UserModel user, ConfigModel config) {
+        List<EmailModel> emailList = new ArrayList<>();
+
         try (Socket socket = new Socket(config.getMailServer(), Integer.parseInt(config.getPOP3()));
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
@@ -268,17 +272,26 @@ public class Helper {
                     sendCommand(writer, "RETR " + i);
                     
                     String emailLine;
+                    StringBuilder emailHeader = new StringBuilder();
                     StringBuilder emailContent = new StringBuilder();
                     StringBuilder attachmentContent = new StringBuilder();
-                    boolean hasAttachment = false;
+                    boolean isAttachmentSession = false;
+                    boolean isContentSession = false;
                     while (!(emailLine = reader.readLine()).equals(".")) {
                         if (emailLine.startsWith("Content-Type: multipart/mixed;")) {
-                            hasAttachment = true;
+                            isAttachmentSession = true;
                         }
-                        if (hasAttachment) {
+                        if (emailLine.startsWith("Content-Transfer-Encoding: 7bit")) {
+                            isContentSession = true;
+                        }
+                        if (isAttachmentSession) {
                             attachmentContent.append(emailLine).append("\r\n");
                         } else {
-                            emailContent.append(emailLine).append("\r\n");
+                            if (isContentSession) {
+                                emailContent.append(emailLine).append("\r\n");
+                            } else {
+                                emailHeader.append(emailLine).append("\r\n");
+                            }
                         }
                     }
 
@@ -288,11 +301,21 @@ public class Helper {
                         if (uidlParts.length >= 2) {
                             String uid = uidlParts[1];
                             if (!existingUIDLs.contains(uid)) {
-                                saveEmailContent(emailContent.toString(), ".data" + File.separatorChar + user.getEmail(), uid);
-
-                                if (hasAttachment) {
+                                EmailModel email = new EmailModel();
+                                email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
+                                email.setFrom(getValueFromEmailHeader(emailHeader.toString(), "From"));
+                                email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
+                                email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
+                                email.setBcc(getValuesFromEmailHeader(emailHeader.toString(), "Bcc"));
+                                email.setTitle(getValueFromEmailHeader(emailHeader.toString(), "Subject"));
+                                email.setContent(emailContent.toString());
+                                
+                                if (isAttachmentSession) {
                                     saveAttachments(attachmentContent.toString(), user.getEmail());
+                                    email.setAttachmentFiles(attachmentFiles);
                                 }
+
+                                saveEmailContent(user.getEmail(), uid, emailHeader.toString() + emailContent.toString() + attachmentContent.toString());
 
                                 System.out.println("Email saved: " + user.getEmail() + "/" + uid);
                                 System.out.println("--------------------------------------------------");
@@ -312,6 +335,32 @@ public class Helper {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return emailList;
+    }
+
+    public static String getValueFromEmailHeader(String emailContent, String fieldName) {
+        String patternString = fieldName + ": (.*?)\\r\\n";
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(emailContent);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    public static String[] getValuesFromEmailHeader(String emailContent, String fieldName) {
+        String patternString = fieldName + ": (.*?)\\r\\n";
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(emailContent);
+
+        List<String> values = new ArrayList<>();
+        while (matcher.find()) {
+            values.add(matcher.group(1));
+        }
+
+        return values.toArray(new String[0]);
     }
 
     private static void sendCommand(BufferedWriter writer, String command) {
@@ -323,16 +372,16 @@ public class Helper {
         }
     }
 
-    private static void saveEmailContent(String content, String senderEmail, String fileName) {
+    private static void saveEmailContent(String userEmail, String fileName, String content) {
         try {
-            File directory = new File(senderEmail);
-            if (!directory.exists()) {
-                directory.mkdirs();
+            Path directoryPath = Paths.get(".data", userEmail);
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath);
             }
 
-            File file = new File(directory, fileName);
+            Path filePath = Paths.get(directoryPath.toString(), fileName);
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8)) {
                 writer.write(content);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -350,9 +399,9 @@ public class Helper {
             }
 
             Path filePath = Paths.get(directoryPath.toString(), fileName);
-            Path fileWithExtensionPath = Paths.get(filePath.toString());
+            attachmentFiles.add(filePath.toString());
 
-            Files.write(fileWithExtensionPath, content);
+            Files.write(filePath, content);
         } catch (IOException e) {
             e.printStackTrace();
         }

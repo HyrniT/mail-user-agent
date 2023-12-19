@@ -8,7 +8,7 @@ public class EmailModel {
     private String title;
     private String content;
     private List<String> attachmentFiles;
-    private Date date;
+    private String date;
 
     public EmailModel() {
     }
@@ -60,7 +60,7 @@ public class EmailModel {
         return attachmentFiles;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
@@ -92,7 +92,7 @@ public class EmailModel {
         this.attachmentFiles = attachmentFiles;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 }
