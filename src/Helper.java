@@ -315,6 +315,8 @@ public class Helper {
                                     email.setAttachmentFiles(attachmentFiles);
                                 }
 
+                                emailList.add(email);
+
                                 saveEmailContent(user.getEmail(), uid, emailHeader.toString() + emailContent.toString() + attachmentContent.toString());
 
                                 System.out.println("Email saved: " + user.getEmail() + "/" + uid);
