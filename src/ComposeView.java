@@ -105,6 +105,7 @@ public class ComposeView {
         fromTextField.setForeground(OnPrimaryColor);
         fromTextField.setCaretColor(OnPrimaryColor);
         // fromTextField.setText(_user.getEmail());
+        // fromTextField.setEnabled(false);
 
         toTextField = new JTextField();
         toTextField.setPreferredSize(new Dimension(500, 24));
@@ -227,14 +228,26 @@ public class ComposeView {
                 Helper.sendMail(_user, _email, _config);
                 // JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
                 //         JOptionPane.INFORMATION_MESSAGE);
+
+                // new Thread(() -> {
+                //     try {
+                //         Thread.sleep(1000);
+                //     } catch (InterruptedException e1) {
+                //         e1.printStackTrace();
+                //     }
+                //     frame.dispose();
+                // }).start();
+
+                // Mốt xóa đoạn code bên dưới
                 new Thread(() -> {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    frame.dispose();
+                    // Lấy danh sách mail từ server
+                    UserModel user = new UserModel();
+                    user.setEmail("nguyen");
+                    user.setPassword("123456");
+                    Helper.getMail(user, _config);
+                    
                 }).start();
+                //
             }
         });
 
@@ -275,6 +288,13 @@ public class ComposeView {
     public void show() {
         SwingUtilities.invokeLater(() -> {
             frame.setVisible(true);
+        });
+    }
+
+    // Mốt xóa hàm main này
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new ComposeView().show();
         });
     }
 }

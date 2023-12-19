@@ -122,6 +122,7 @@ public class Helper {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
+            System.out.println("SMTP");
             System.out.println(reader.readLine());
 
             sendCommand(writer, "HELO " + host);
@@ -199,7 +200,6 @@ public class Helper {
                 sendCommand(writer, "Content-Type: multipart/mixed; boundary=separator");
                 for (String attachmentFile : mail.getAttachmentFiles()) {
                     File file = new File(attachmentFile);
-                    System.out.println(attachmentFile);
                     if (file.exists()) {
                         sendCommand(writer, "--separator");
                         String contentType = Files.probeContentType(Path.of(attachmentFile));
@@ -236,8 +236,8 @@ public class Helper {
         try (Socket socket = new Socket(config.getMailServer(), Integer.parseInt(config.getPOP3()));
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-
-            // Kết nối thành công
+            
+            System.out.println("POP3");
             System.out.println(reader.readLine());
 
             sendCommand(writer, "USER " + user.getEmail());
@@ -253,27 +253,45 @@ public class Helper {
             if (statResponse.startsWith("+OK") && statResponse.split(" ").length > 1) {
                 int numOfEmails = Integer.parseInt(statResponse.split(" ")[1]);
 
-                // Lấy nội dung của từng email
+                List<String> uidlList = new ArrayList<>();
+                sendCommand(writer, "UIDL");
+                String uidlResponse;
+                while (!(uidlResponse = reader.readLine()).equals(".")) {
+                    uidlList.add(uidlResponse);
+                }
+
+                Set<String> existingUIDLs = loadExistingUIDLs(user.getEmail());
+
                 for (int i = 1; i <= numOfEmails; i++) {
-                    // Gửi lệnh RETR để lấy nội dung email thứ i
                     sendCommand(writer, "RETR " + i);
 
-                    // Đọc và lưu nội dung email
                     String emailLine;
                     StringBuilder emailContent = new StringBuilder();
                     while (!(emailLine = reader.readLine()).equals(".")) {
                         emailContent.append(emailLine).append("\n");
                     }
+                    if (i <= uidlList.size()) {
+                        String uidlResponseLine = uidlList.get(i);
+                        String[] uidlParts = uidlResponseLine.split(" ");
+                        if (uidlParts.length >= 2) {
+                            String uid = uidlParts[1];
+                            if (!existingUIDLs.contains(uid)) {
+                                saveEmailContent(emailContent.toString(),
+                                        ".data" + File.separatorChar + user.getEmail(),
+                                        uid);
+                                System.out.println("Email saved: " + user.getEmail() + "/" + uid);
+                                System.out.println("--------------------------------------------------");
 
-                    // Lưu nội dung email vào file
-                    saveEmailContent(emailContent.toString(), ".data" + File.separatorChar + user.getEmail(), "email_" + i + ".txt");
-
-                    System.out.println("Email saved: " + user.getEmail() + "/email_" + i + ".txt");
-                    System.out.println("--------------------------------------------------");
+                                existingUIDLs.add(uid);
+                                saveExistingUIDLs(user.getEmail(), existingUIDLs);
+                            } else {
+                                System.out.println("Email with UID " + uid + " already exists. Skipping...");
+                            }
+                        }
+                    }
                 }
             }
 
-            // Gửi lệnh QUIT để kết thúc phiên làm việc
             sendCommand(writer, "QUIT");
 
         } catch (IOException e) {
@@ -291,8 +309,60 @@ public class Helper {
     }
 
     private static void saveEmailContent(String content, String senderEmail, String fileName) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(senderEmail, fileName)))) {
-            writer.write(content);
+        try {
+            File directory = new File(senderEmail);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            File file = new File(directory, fileName);
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveAttachmentContent(String userEmail, String fileName, byte[] content) {
+        try {
+            Path directoryPath = Paths.get(".data", userEmail);
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath);
+            }
+
+            Path filePath = Paths.get(directoryPath.toString(), fileName);
+            Files.write(filePath, content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Set<String> loadExistingUIDLs(String userEmail) {
+        Set<String> existingUIDLs = new HashSet<>();
+        try {
+            Path filePath = Paths.get(".data", userEmail, "emails.txt");
+            if (Files.exists(filePath)) {
+                existingUIDLs.addAll(Files.readAllLines(filePath));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return existingUIDLs;
+    }
+
+    private static void saveExistingUIDLs(String userEmail, Set<String> existingUIDLs) {
+        try {
+            Path directoryPath = Paths.get(".data", userEmail);
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath);
+            }
+
+            Path filePath = Paths.get(directoryPath.toString(), "emails.txt");
+            Files.write(filePath, existingUIDLs);
         } catch (IOException e) {
             e.printStackTrace();
         }
