@@ -1,4 +1,4 @@
-import java.util.List;
+import java.util.*;
 
 public class EmailModel {
     private String from;
@@ -8,6 +8,7 @@ public class EmailModel {
     private String title;
     private String content;
     private List<String> attachmentFiles;
+    private Date date;
 
     public EmailModel() {
     }
@@ -59,6 +60,10 @@ public class EmailModel {
         return attachmentFiles;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
     public void setFrom(String from) {
         this.from = from;
     }
@@ -85,5 +90,9 @@ public class EmailModel {
 
     public void setAttachmentFiles(List<String> attachmentFiles) {
         this.attachmentFiles = attachmentFiles;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }

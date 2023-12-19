@@ -10,6 +10,8 @@ import java.net.*;
 import java.nio.file.*;
 import java.text.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Helper {
     private static ConfigModel config;
@@ -252,33 +254,46 @@ public class Helper {
 
             if (statResponse.startsWith("+OK") && statResponse.split(" ").length > 1) {
                 int numOfEmails = Integer.parseInt(statResponse.split(" ")[1]);
-
+                
                 List<String> uidlList = new ArrayList<>();
                 sendCommand(writer, "UIDL");
                 String uidlResponse;
                 while (!(uidlResponse = reader.readLine()).equals(".")) {
                     uidlList.add(uidlResponse);
                 }
-
+                
                 Set<String> existingUIDLs = loadExistingUIDLs(user.getEmail());
-
+                
                 for (int i = 1; i <= numOfEmails; i++) {
                     sendCommand(writer, "RETR " + i);
-
+                    
                     String emailLine;
                     StringBuilder emailContent = new StringBuilder();
+                    StringBuilder attachmentContent = new StringBuilder();
+                    boolean hasAttachment = false;
                     while (!(emailLine = reader.readLine()).equals(".")) {
-                        emailContent.append(emailLine).append("\n");
+                        if (emailLine.startsWith("Content-Type: multipart/mixed;")) {
+                            hasAttachment = true;
+                        }
+                        if (hasAttachment) {
+                            attachmentContent.append(emailLine).append("\r\n");
+                        } else {
+                            emailContent.append(emailLine).append("\r\n");
+                        }
                     }
+
                     if (i <= uidlList.size()) {
                         String uidlResponseLine = uidlList.get(i);
                         String[] uidlParts = uidlResponseLine.split(" ");
                         if (uidlParts.length >= 2) {
                             String uid = uidlParts[1];
                             if (!existingUIDLs.contains(uid)) {
-                                saveEmailContent(emailContent.toString(),
-                                        ".data" + File.separatorChar + user.getEmail(),
-                                        uid);
+                                saveEmailContent(emailContent.toString(), ".data" + File.separatorChar + user.getEmail(), uid);
+
+                                if (hasAttachment) {
+                                    saveAttachments(attachmentContent.toString(), user.getEmail());
+                                }
+
                                 System.out.println("Email saved: " + user.getEmail() + "/" + uid);
                                 System.out.println("--------------------------------------------------");
 
@@ -327,7 +342,7 @@ public class Helper {
         }
     }
 
-    private static void saveAttachmentContent(String userEmail, String fileName, byte[] content) {
+    private static void saveEmailAttachment(String userEmail, String fileName, byte[] content) {
         try {
             Path directoryPath = Paths.get(".data", userEmail);
             if (!Files.exists(directoryPath)) {
@@ -335,9 +350,27 @@ public class Helper {
             }
 
             Path filePath = Paths.get(directoryPath.toString(), fileName);
-            Files.write(filePath, content);
+            Path fileWithExtensionPath = Paths.get(filePath.toString());
+
+            Files.write(fileWithExtensionPath, content);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void saveAttachments(String emailAttachment, String userEmail) {
+        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?Content-Transfer-Encoding: base64\\s+\\n(.*?)\\s+\\n--separator";
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline characters
+        Matcher matcher = pattern.matcher(emailAttachment);
+
+        while (matcher.find()) {
+            String fileName = matcher.group(1);
+            String base64Content = matcher.group(2);
+
+            byte[] decodedBytes = Base64.getDecoder().decode(base64Content);
+
+            saveEmailAttachment(userEmail, fileName, decodedBytes);
+            System.out.println("Attachment saved: " + fileName);
         }
     }
 
