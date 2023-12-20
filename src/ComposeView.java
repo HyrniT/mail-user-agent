@@ -230,24 +230,24 @@ public class ComposeView {
                 // JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
                 //         JOptionPane.INFORMATION_MESSAGE);
 
-                // new Thread(() -> {
-                //     try {
-                //         Thread.sleep(1000);
-                //     } catch (InterruptedException e1) {
-                //         e1.printStackTrace();
-                //     }
-                //     frame.dispose();
-                // }).start();
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    frame.dispose();
+                }).start();
 
                 // Mốt xóa đoạn code bên dưới
-                new Thread(() -> {
-                    // Lấy danh sách mail từ server
-                    UserModel user = new UserModel();
-                    user.setEmail("nguyen");
-                    user.setPassword("123456");
-                    Helper.getMail(user, _config);
+                // new Thread(() -> {
+                //     // Lấy danh sách mail từ server
+                //     UserModel user = new UserModel();
+                //     user.setEmail("nguyen");
+                //     user.setPassword("123456");
+                //     Helper.getMail(user, _config);
                     
-                }).start();
+                // }).start();
                 //
             }
         });
@@ -293,9 +293,9 @@ public class ComposeView {
     }
 
     // Mốt xóa hàm main này
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new ComposeView().show();
-        });
-    }
+    // public static void main(String[] args) {
+    //     SwingUtilities.invokeLater(() -> {
+    //         new ComposeView().show();
+    //     });
+    // }
 }
