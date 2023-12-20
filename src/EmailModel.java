@@ -9,6 +9,7 @@ public class EmailModel {
     private String content;
     private List<String> attachmentFiles;
     private String date;
+    private String tag = "INBOX";
 
     public EmailModel() {
     }
@@ -64,6 +65,10 @@ public class EmailModel {
         return date;
     }
 
+    public String getTag() {
+        return tag;
+    }
+
     public void setFrom(String from) {
         this.from = from;
     }
@@ -94,5 +99,9 @@ public class EmailModel {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }
