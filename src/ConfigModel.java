@@ -7,6 +7,10 @@ public class ConfigModel {
     private String _autoload;
     private Map<String, Map<String, List<String>>> _filterMap;
 
+    public ConfigModel() {
+        
+    }
+
     public ConfigModel(String mailServer, String smtp, String pop3, String autoload) {
         _filterMap = new HashMap<>();
         this._mailServer = mailServer;
