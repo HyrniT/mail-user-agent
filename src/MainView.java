@@ -22,18 +22,8 @@ public class MainView {
         this._user = user;
         this._config = config;
         this._emails = emails;
-        initializeUI();
-        setupListeners();
+        
     }
-
-    // Mốt xóa thằng này
-    // public MainView() {
-    //     new Thread(() -> {
-    //         _config = Helper.readXML();
-    //     }).start();
-    //     initializeUI();
-    //     setupListeners();
-    // }
 
     private void initializeUI() {
         frame = new JFrame("Mail Client");
@@ -116,6 +106,7 @@ public class MainView {
         mainPanel.add(mainSplitPane, BorderLayout.CENTER);
 
         frame.add(mainPanel);
+        frame.setVisible(true);
     }
 
     private void setupListeners() {
@@ -129,15 +120,8 @@ public class MainView {
 
     public void show() {
         SwingUtilities.invokeLater(() -> {
-            frame.setVisible(true);
+            initializeUI();
+            setupListeners();
         });
     }
-
-    // Mốt xóa hàm main
-    // public static void main(String[] args) {
-    //     SwingUtilities.invokeLater(() -> {
-    //         // frame.setVisible(true);
-    //         new MainView().show();
-    //     });
-    // }
 }

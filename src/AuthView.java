@@ -27,11 +27,7 @@ public class AuthView {
     private JLabel loginMessageLabel, registerMessageLabel;
 
     public AuthView() {
-        new Thread(() -> {
-            loadUsers();
-        }).start();
-        initializeUI();
-        setupListeners();
+        
     }
 
     private void initializeUI() {
@@ -71,12 +67,16 @@ public class AuthView {
         loginEmailField.setForeground(OnPrimaryColor);
         loginEmailField.setCaretColor(OnPrimaryColor);
         loginEmailField.setPreferredSize(new Dimension(230, 24));
+        // Mốt xóa thằng này
+        loginEmailField.setText("test@mail.com");
 
         loginPasswordField = new JPasswordField();
         loginPasswordField.setBackground(PrimaryColor);
         loginPasswordField.setForeground(OnPrimaryColor);
         loginPasswordField.setCaretColor(OnPrimaryColor);
         loginPasswordField.setPreferredSize(new Dimension(230, 24));
+        // Mốt xóa thằng này
+        loginPasswordField.setText("123");
 
         loginMessageLabel = new JLabel();
         loginMessageLabel.setFont(new Font(FontName, Font.ITALIC, 12));
@@ -200,6 +200,7 @@ public class AuthView {
 
         // Add tabbed panel into frame
         frame.add(tabbedPane);
+        frame.setVisible(true);
     }
 
     private void setupListeners() {
@@ -230,7 +231,11 @@ public class AuthView {
 
     public void show() {
         SwingUtilities.invokeLater(() -> {
-            frame.setVisible(true);
+            new Thread(() -> {
+                loadUsers();
+            }).start();
+            initializeUI();
+            setupListeners();
         });
     }
 
@@ -373,10 +378,26 @@ public class AuthView {
 
     private void showMainView() {
         _config = Helper.readXML();
-        _emails = Helper.getMail(_user, _config);
-        frame.setVisible(false);
-        new MainView(_user, _config, _emails).show();
-        //
-        System.out.println(_config.getFilterMap().get("Important").get("From").toString());
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                // Load emails from local
+                _emails = Helper.loadEmails(_user, _config, _emails);
+
+                // Get emails from the server
+                _emails = Helper.getMails(_user, _config, _emails);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                frame.setVisible(false);
+                new MainView(_user, _config, _emails).show();
+                System.out.println(_config.getFilterMap().get("Important").get("From").toString());
+            }
+        };
+
+        worker.execute();
     }
+
 }

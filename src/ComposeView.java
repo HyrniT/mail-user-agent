@@ -26,16 +26,6 @@ public class ComposeView {
     public ComposeView(UserModel user, ConfigModel config) {
         this._user = user;
         this._config = config;
-        initializeUI();
-        setupListeners();
-    }
-
-    // Mốt xóa thằng này
-    public ComposeView() {
-        _config = Helper.readXML();
-        _user = new UserModel();
-        initializeUI();
-        setupListeners();
     }
 
     public void initializeUI() {
@@ -174,7 +164,7 @@ public class ComposeView {
         attachLabel.setForeground(OnPrimaryColor);
         attachLabel.setBackground(PrimaryColor);
         attachLabel.setPreferredSize(new Dimension(460, 24));
-        // attachLabel.setBorder(BorderFactory.createLineBorder(OnPrimaryColor));
+
 
         bottomPanel.add(attachButton);
         bottomPanel.add(attachLabel);
@@ -184,6 +174,7 @@ public class ComposeView {
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         frame.add(mainPanel);
+        frame.setVisible(true);
     }
 
     private void setupListeners() {
@@ -221,10 +212,6 @@ public class ComposeView {
                     _email = new EmailModel(from, toList, ccList, bccList, title, content);
                 }
 
-                // mốt xóa dòng bên dưới
-                _user.setEmail(from);
-                //
-
                 Helper.sendMail(_user, _email, _config);
                 // JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
                 //         JOptionPane.INFORMATION_MESSAGE);
@@ -237,17 +224,6 @@ public class ComposeView {
                     }
                     frame.dispose();
                 }).start();
-
-                // Mốt xóa đoạn code bên dưới
-                // new Thread(() -> {
-                //     // Lấy danh sách mail từ server
-                //     UserModel user = new UserModel();
-                //     user.setEmail("nguyen");
-                //     user.setPassword("123456");
-                //     Helper.getMail(user, _config);
-                    
-                // }).start();
-                //
             }
         });
 
@@ -287,14 +263,8 @@ public class ComposeView {
 
     public void show() {
         SwingUtilities.invokeLater(() -> {
-            frame.setVisible(true);
+            initializeUI();
+            setupListeners();
         });
     }
-
-    // Mốt xóa hàm main này
-    // public static void main(String[] args) {
-    //     SwingUtilities.invokeLater(() -> {
-    //         new ComposeView().show();
-    //     });
-    // }
 }

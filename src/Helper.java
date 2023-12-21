@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Helper {
-    private static ConfigModel config;
+    private static ConfigModel _config;
     private static Map<String, Map<String, List<String>>> filterMap = new HashMap<>();
     private static Element filterElement;
     private static List<String> attachmentFiles = new ArrayList<>();
@@ -39,7 +39,7 @@ public class Helper {
                 String pop3 = generalElement.getElementsByTagName("POP3").item(0).getTextContent();
                 String autoload = generalElement.getElementsByTagName("Autoload").item(0).getTextContent();
 
-                config = new ConfigModel(mailServer, smtp, pop3, autoload);
+                _config = new ConfigModel(mailServer, smtp, pop3, autoload);
             }
 
             NodeList filterList = doc.getElementsByTagName("Filter");
@@ -52,11 +52,11 @@ public class Helper {
                 processFilterType("Work");
                 processFilterType("Spam");
             }
-            config.setFilterMap(filterMap);
+            _config.setFilterMap(filterMap);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return config;
+        return _config;
     }
 
     public static void modifyXML(String tagName, String parentTagName, String newValue) {
@@ -236,8 +236,8 @@ public class Helper {
         }
     }
 
-    public static List<EmailModel> getMail(UserModel user, ConfigModel config) {
-        List<EmailModel> emailList = new ArrayList<>();
+    public static List<EmailModel> getMails(UserModel user, ConfigModel config, List<EmailModel> emailList) {
+        String userEmail = user.getEmail();
 
         try (Socket socket = new Socket(config.getMailServer(), Integer.parseInt(config.getPOP3()));
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -246,7 +246,7 @@ public class Helper {
             System.out.println("POP3");
             System.out.println(reader.readLine());
 
-            sendCommand(writer, "USER " + user.getEmail());
+            sendCommand(writer, "USER " + userEmail);
             System.out.println(reader.readLine());
 
             sendCommand(writer, "PASS " + user.getPassword());
@@ -266,7 +266,7 @@ public class Helper {
                     uidlList.add(uidlResponse);
                 }
                 
-                Set<String> existingUIDLs = loadExistingUIDLs(user.getEmail());
+                Set<String> existingUIDLs = loadExistingUIDLs(userEmail);
                 
                 for (int i = 1; i <= numOfEmails; i++) {
                     sendCommand(writer, "RETR " + i);
@@ -284,6 +284,7 @@ public class Helper {
                         }
                         if (emailLine.startsWith("Content-Transfer-Encoding: 7bit")) {
                             isContentSession = true;
+                            emailHeader.append("Content-Transfer-Encoding: 7bit").append("\r\n");
                             continue;
                         }
                         if (isAttachmentSession) {
@@ -313,19 +314,19 @@ public class Helper {
                                 email.setContent(emailContent.toString());
                                 
                                 if (isAttachmentSession) {
-                                    saveAttachments(attachmentContent.toString(), user.getEmail());
+                                    saveAttachments(attachmentContent.toString(), userEmail);
                                     email.setAttachmentFiles(attachmentFiles);
                                 }
 
-                                emailList.add(email);
+                                emailList.add(0, email);
 
-                                saveEmailContent(user.getEmail(), uid, emailHeader.toString() + emailContent.toString() + attachmentContent.toString());
+                                saveEmailContent(userEmail, uid, emailHeader.toString() + emailContent.toString() + attachmentContent.toString());
 
-                                System.out.println("Email saved: " + user.getEmail() + "/" + uid + ".txt");
+                                System.out.println("Email saved: " + userEmail + "/" + uid + ".txt");
                                 System.out.println("--------------------------------------------------");
 
                                 existingUIDLs.add(uid);
-                                saveExistingUIDLs(user.getEmail(), existingUIDLs);
+                                saveExistingUIDLs(userEmail, existingUIDLs);
                             } else {
                                 System.out.println("Email with UID " + uid + " already exists. Skipping...");
                             }
@@ -335,9 +336,74 @@ public class Helper {
             }
 
             sendCommand(writer, "QUIT");
+            System.out.println("Files attached: " + attachmentFiles.toString());
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        return emailList;
+    }
+
+    public static List<EmailModel> loadEmails(UserModel user, ConfigModel config, List<EmailModel> emailList) {
+        String userEmail = user.getEmail();
+        Path directoryPath = Paths.get("data", userEmail, "emails");
+        File[] files = directoryPath.toFile().listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".txt")) {
+                    try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+                        String emailLine;
+                        StringBuilder emailHeader = new StringBuilder();
+                        StringBuilder emailContent = new StringBuilder();
+                        StringBuilder attachmentContent = new StringBuilder();
+                        boolean isAttachmentSession = false;
+                        boolean isContentSession = false;
+                        while ((emailLine = reader.readLine()) != null) {
+                            if (emailLine.startsWith("Content-Type: multipart/mixed;")) {
+                                isAttachmentSession = true;
+                            }
+                            if (emailLine.startsWith("Content-Transfer-Encoding: 7bit")) {
+                                isContentSession = true;
+                                emailHeader.append("Content-Transfer-Encoding: 7bit").append("\r\n");
+                                continue;
+                            }
+                            if (isAttachmentSession) {
+                                attachmentContent.append(emailLine).append("\r\n");
+                            } else {
+                                if (isContentSession) {
+                                    emailContent.append(emailLine).append("\r\n");
+                                } else {
+                                    emailHeader.append(emailLine).append("\r\n");
+                                }
+                            }
+                        }
+
+                        EmailModel email = new EmailModel();
+                        email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
+                        email.setFrom(getValueFromEmailHeader(emailHeader.toString(), "From"));
+                        email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
+                        email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
+                        email.setBcc(getValuesFromEmailHeader(emailHeader.toString(), "Bcc"));
+                        email.setTitle(getValueFromEmailHeader(emailHeader.toString(), "Subject"));
+                        email.setContent(emailContent.toString());
+                        
+                        if (isAttachmentSession) {
+                            loadAttachments(attachmentContent.toString(), userEmail);
+                            email.setAttachmentFiles(attachmentFiles);
+                        }
+
+                        emailList.add(0, email);
+                        // emailList.sort((e1, e2) -> e2.getDate().compareTo(e1.getDate()));
+
+                        System.out.println("Email loaded: " + userEmail + "/" + file.getName());
+                        System.out.println("--------------------------------------------------");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                
+                }
+            }
         }
 
         return emailList;
@@ -424,6 +490,18 @@ public class Helper {
 
             saveEmailAttachment(userEmail, fileName, decodedBytes);
             System.out.println("Attachment saved: " + fileName);
+        }
+    }
+
+    public static void loadAttachments(String emailAttachment, String userEmail) {
+        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?--separator";
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline characters
+        Matcher matcher = pattern.matcher(emailAttachment);
+
+        while (matcher.find()) {
+            String fileName = matcher.group(1);
+            attachmentFiles.add(fileName);
+            System.out.println("Attachment loaded: " + fileName);
         }
     }
 
