@@ -381,12 +381,49 @@ public class Helper {
 
                         EmailModel email = new EmailModel();
                         email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
-                        email.setFrom(getValueFromEmailHeader(emailHeader.toString(), "From"));
                         email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
                         email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
                         email.setBcc(getValuesFromEmailHeader(emailHeader.toString(), "Bcc"));
-                        email.setTitle(getValueFromEmailHeader(emailHeader.toString(), "Subject"));
-                        email.setContent(emailContent.toString());
+                        
+                        String from =  getValueFromEmailHeader(emailHeader.toString(), "From");
+                        String subject  = getValueFromEmailHeader(emailHeader.toString(), "Subject");
+                        String body = emailContent.toString();
+                        email.setFrom(from);
+                        email.setTitle(subject);
+                        email.setContent(body);
+
+                        if (email.getTag() == "Inbox") {
+                            _config.getFilterMap().forEach((k, v) -> {
+                                if (v.get("From").contains(from)) {
+                                    email.setTag(k);
+                                }
+                            });
+                        }
+
+                        if (email.getTag() == "Inbox") {
+                            _config.getFilterMap().forEach((k, v) -> {
+                                if (v.get("SUBJECT").contains(subject)) {
+                                    email.setTag(k);
+                                }
+                            });
+                        }
+
+                        if (email.getTag() == "Inbox") {
+                            _config.getFilterMap().forEach((k, v) -> {
+                                if (v.get("Body").contains(body)) {
+                                    email.setTag(k);
+                                }
+                            });
+                        }
+
+                        if (email.getTag() == "Inbox") {
+                            String content = subject + body;
+                            _config.getFilterMap().forEach((k, v) -> {
+                                if (v.get("Content").contains(content)) {
+                                    email.setTag(k);
+                                }
+                            });
+                        }
                         
                         if (isAttachmentSession) {
                             loadAttachments(attachmentContent.toString(), userEmail);
@@ -395,6 +432,7 @@ public class Helper {
 
                         emailList.add(0, email);
                         // emailList.sort((e1, e2) -> e2.getDate().compareTo(e1.getDate()));
+                        System.out.println("Project -> From: " + _config.getFilterMap().get("Project").get("From").toString());
 
                         System.out.println("Email loaded: " + userEmail + "/" + file.getName());
                         System.out.println("--------------------------------------------------");

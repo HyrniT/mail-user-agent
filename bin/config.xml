@@ -8,7 +8,7 @@
     </General>
     <Filter>
         <Project>
-            <From></From>
+            <From>test@mail.com</From>
             <Subject></Subject>
             <Body></Body>
             <Content></Content>

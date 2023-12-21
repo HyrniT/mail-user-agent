@@ -393,7 +393,6 @@ public class AuthView {
             protected void done() {
                 frame.setVisible(false);
                 new MainView(_user, _config, _emails).show();
-                System.out.println(_config.getFilterMap().get("Important").get("From").toString());
             }
         };
 

@@ -61,11 +61,11 @@ public class MainView {
         leftPanel.setForeground(OnPrimaryColor);
 
         DefaultListModel<String> defaultListModel = new DefaultListModel<>();
-        defaultListModel.addElement("INBOX");
-        defaultListModel.addElement("PROJECT");
-        defaultListModel.addElement("IMPORTANT");
-        defaultListModel.addElement("WORK");
-        defaultListModel.addElement("SPAM");
+        defaultListModel.addElement("Inbox");
+        defaultListModel.addElement("Project");
+        defaultListModel.addElement("Important");
+        defaultListModel.addElement("Work");
+        defaultListModel.addElement("Spam");
 
         folderList = new JList<>(defaultListModel);
         folderList.setCellRenderer(new FolderListCellRender());

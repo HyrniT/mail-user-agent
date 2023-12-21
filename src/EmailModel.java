@@ -9,7 +9,7 @@ public class EmailModel {
     private String content;
     private List<String> attachmentFiles;
     private String date;
-    private String tag = "INBOX";
+    private String tag = "Inbox";
 
     public EmailModel() {
     }
