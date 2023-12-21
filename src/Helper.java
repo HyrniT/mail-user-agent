@@ -107,10 +107,14 @@ public class Helper {
                 Element element = (Element) node;
 
                 Map<String, List<String>> map = new HashMap<>();
-                map.put("From", Arrays.asList(element.getElementsByTagName("From").item(0).getTextContent().split(",")));
-                map.put("Subject", Arrays.asList(element.getElementsByTagName("Subject").item(0).getTextContent().split(",")));
-                map.put("Body", Arrays.asList(element.getElementsByTagName("Body").item(0).getTextContent().split(",")));
-                map.put("Content", Arrays.asList(element.getElementsByTagName("Content").item(0).getTextContent().split(",")));
+                map.put("From",
+                        Arrays.asList(element.getElementsByTagName("From").item(0).getTextContent().split(",")));
+                map.put("Subject",
+                        Arrays.asList(element.getElementsByTagName("Subject").item(0).getTextContent().split(",")));
+                map.put("Body",
+                        Arrays.asList(element.getElementsByTagName("Body").item(0).getTextContent().split(",")));
+                map.put("Content",
+                        Arrays.asList(element.getElementsByTagName("Content").item(0).getTextContent().split(",")));
 
                 filterMap.put(filterType, map);
             }
@@ -143,7 +147,7 @@ public class Helper {
                     System.out.println(reader.readLine());
                 }
             }
-            
+
             if (mail.getCc() != null) {
                 for (String cc : mail.getCc()) {
                     sendCommand(writer, "RCPT TO:<" + cc + ">");
@@ -198,7 +202,6 @@ public class Helper {
                 sendCommand(writer, "");
             }
 
-            
             if (mail.getAttachmentFiles() != null && mail.getAttachmentFiles().size() > 0) {
                 sendCommand(writer, "");
                 sendCommand(writer, "Content-Type: multipart/mixed; boundary=separator");
@@ -229,7 +232,7 @@ public class Helper {
             sendCommand(writer, "QUIT");
 
             System.out.println(reader.readLine());
-            
+
             socket.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,7 +245,7 @@ public class Helper {
         try (Socket socket = new Socket(config.getMailServer(), Integer.parseInt(config.getPOP3()));
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-            
+
             System.out.println("POP3");
             System.out.println(reader.readLine());
 
@@ -258,20 +261,20 @@ public class Helper {
 
             if (statResponse.startsWith("+OK") && statResponse.split(" ").length > 1) {
                 int numOfEmails = Integer.parseInt(statResponse.split(" ")[1]);
-                
+
                 List<String> uidlList = new ArrayList<>();
                 sendCommand(writer, "UIDL");
                 String uidlResponse;
                 while (!(uidlResponse = reader.readLine()).equals(".")) {
                     uidlList.add(uidlResponse);
                 }
-                
+
                 Set<String> existingUIDLs = loadExistingUIDLs(userEmail);
-                
+
                 for (int i = 1; i <= numOfEmails; i++) {
                     sendCommand(writer, "RETR " + i);
                     System.out.println(reader.readLine());
-                    
+
                     String emailLine;
                     StringBuilder emailHeader = new StringBuilder();
                     StringBuilder emailContent = new StringBuilder();
@@ -306,13 +309,50 @@ public class Helper {
                             if (!existingUIDLs.contains(uid)) {
                                 EmailModel email = new EmailModel();
                                 email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
-                                email.setFrom(getValueFromEmailHeader(emailHeader.toString(), "From"));
                                 email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
                                 email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
                                 email.setBcc(getValuesFromEmailHeader(emailHeader.toString(), "Bcc"));
-                                email.setTitle(getValueFromEmailHeader(emailHeader.toString(), "Subject"));
-                                email.setContent(emailContent.toString());
-                                
+
+                                String from = getValueFromEmailHeader(emailHeader.toString(), "From");
+                                String subject = getValueFromEmailHeader(emailHeader.toString(), "Subject");
+                                String body = emailContent.toString();
+                                email.setFrom(from);
+                                email.setTitle(subject);
+                                email.setContent(body);
+
+                                if (email.getTag() == "Inbox") {
+                                    _config.getFilterMap().forEach((k, v) -> {
+                                        if (v.get("From").contains(from)) {
+                                            email.setTag(k);
+                                        }
+                                    });
+                                }
+
+                                if (email.getTag() == "Inbox") {
+                                    _config.getFilterMap().forEach((k, v) -> {
+                                        if (v.get("SUBJECT").contains(subject)) {
+                                            email.setTag(k);
+                                        }
+                                    });
+                                }
+
+                                if (email.getTag() == "Inbox") {
+                                    _config.getFilterMap().forEach((k, v) -> {
+                                        if (v.get("Body").contains(body)) {
+                                            email.setTag(k);
+                                        }
+                                    });
+                                }
+
+                                if (email.getTag() == "Inbox") {
+                                    String content = subject + body;
+                                    _config.getFilterMap().forEach((k, v) -> {
+                                        if (v.get("Content").contains(content)) {
+                                            email.setTag(k);
+                                        }
+                                    });
+                                }
+
                                 if (isAttachmentSession) {
                                     saveAttachments(attachmentContent.toString(), userEmail);
                                     email.setAttachmentFiles(attachmentFiles);
@@ -320,7 +360,8 @@ public class Helper {
 
                                 emailList.add(0, email);
 
-                                saveEmailContent(userEmail, uid, emailHeader.toString() + emailContent.toString() + attachmentContent.toString());
+                                saveEmailContent(userEmail, uid, emailHeader.toString() + emailContent.toString()
+                                        + attachmentContent.toString());
 
                                 System.out.println("Email saved: " + userEmail + "/" + uid + ".txt");
                                 System.out.println("--------------------------------------------------");
@@ -384,9 +425,9 @@ public class Helper {
                         email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
                         email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
                         email.setBcc(getValuesFromEmailHeader(emailHeader.toString(), "Bcc"));
-                        
-                        String from =  getValueFromEmailHeader(emailHeader.toString(), "From");
-                        String subject  = getValueFromEmailHeader(emailHeader.toString(), "Subject");
+
+                        String from = getValueFromEmailHeader(emailHeader.toString(), "From");
+                        String subject = getValueFromEmailHeader(emailHeader.toString(), "Subject");
                         String body = emailContent.toString();
                         email.setFrom(from);
                         email.setTitle(subject);
@@ -424,7 +465,7 @@ public class Helper {
                                 }
                             });
                         }
-                        
+
                         if (isAttachmentSession) {
                             loadAttachments(attachmentContent.toString(), userEmail);
                             email.setAttachmentFiles(attachmentFiles);
@@ -432,14 +473,13 @@ public class Helper {
 
                         emailList.add(0, email);
                         // emailList.sort((e1, e2) -> e2.getDate().compareTo(e1.getDate()));
-                        System.out.println("Project -> From: " + _config.getFilterMap().get("Project").get("From").toString());
 
                         System.out.println("Email loaded: " + userEmail + "/" + file.getName());
                         System.out.println("--------------------------------------------------");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                
+
                 }
             }
         }
@@ -517,7 +557,8 @@ public class Helper {
 
     public static void saveAttachments(String emailAttachment, String userEmail) {
         String patternString = "Content-Type: .*?; name=\"(.*?)\".*?Content-Transfer-Encoding: base64\\s+\\n(.*?)\\s+\\n--separator";
-        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline characters
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline
+                                                                          // characters
         Matcher matcher = pattern.matcher(emailAttachment);
 
         while (matcher.find()) {
@@ -533,7 +574,8 @@ public class Helper {
 
     public static void loadAttachments(String emailAttachment, String userEmail) {
         String patternString = "Content-Type: .*?; name=\"(.*?)\".*?--separator";
-        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline characters
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline
+                                                                          // characters
         Matcher matcher = pattern.matcher(emailAttachment);
 
         while (matcher.find()) {
