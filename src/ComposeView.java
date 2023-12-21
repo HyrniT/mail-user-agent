@@ -40,7 +40,7 @@ public class ComposeView {
 
     public void initializeUI() {
         frame = new JFrame("New Email");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setSize(600, 600);
 
@@ -104,8 +104,8 @@ public class ComposeView {
         fromTextField.setBackground(PrimaryColor);
         fromTextField.setForeground(OnPrimaryColor);
         fromTextField.setCaretColor(OnPrimaryColor);
-        // fromTextField.setText(_user.getEmail()); mở comment cho thằng này
-        // fromTextField.setEnabled(false); mở comment cho thằng này
+        fromTextField.setText(_user.toString());
+        fromTextField.setEnabled(false);
 
         toTextField = new JTextField();
         toTextField.setPreferredSize(new Dimension(500, 24));
@@ -190,8 +190,7 @@ public class ComposeView {
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // String from = _user.toString(); mở comment cho thằng này
-                String from = fromTextField.getText();
+                String from = _user.getEmail();
                 String to = toTextField.getText();
                 String cc = ccTextField.getText();
                 String bcc = bccTextField.getText();

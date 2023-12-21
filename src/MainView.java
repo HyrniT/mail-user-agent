@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -15,27 +16,27 @@ public class MainView {
 
     private UserModel _user;
     private ConfigModel _config;
+    private List<EmailModel> _emails;
 
-    public MainView(UserModel user) {
+    public MainView(UserModel user, ConfigModel config, List<EmailModel> emails) {
         this._user = user;
-        new Thread(() -> {
-            _config = Helper.readXML();
-        }).start();
+        this._config = config;
+        this._emails = emails;
         initializeUI();
         setupListeners();
     }
 
     // Mốt xóa thằng này
-    public MainView() {
-        new Thread(() -> {
-            _config = Helper.readXML();
-        }).start();
-        initializeUI();
-        setupListeners();
-    }
+    // public MainView() {
+    //     new Thread(() -> {
+    //         _config = Helper.readXML();
+    //     }).start();
+    //     initializeUI();
+    //     setupListeners();
+    // }
 
     private void initializeUI() {
-        frame = new JFrame("Hmail");
+        frame = new JFrame("Mail Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setSize(900, 600);
@@ -113,17 +114,17 @@ public class MainView {
         });
     }
 
-    // Mốt mở comment cho thằng này
     public void show() {
-        // frame.setTitle(_user.toString());
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            frame.setVisible(true);
+        });
     }
 
     // Mốt xóa hàm main
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // frame.setVisible(true);
-            new MainView().show();
-        });
-    }
+    // public static void main(String[] args) {
+    //     SwingUtilities.invokeLater(() -> {
+    //         // frame.setVisible(true);
+    //         new MainView().show();
+    //     });
+    // }
 }

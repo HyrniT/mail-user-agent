@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -10,8 +11,10 @@ public class AuthView {
     private final Color OnPrimaryColor = Color.BLACK;
     private final String FontName = "Arial";
 
-    private ArrayList<UserModel> _users = new ArrayList<>();
+    private List<UserModel> _users = new ArrayList<>();
+    private List<EmailModel> _emails = new ArrayList<>();
     private UserModel _user = new UserModel();
+    private ConfigModel _config = new ConfigModel();
 
     private JFrame frame;
     private JTabbedPane tabbedPane;
@@ -29,7 +32,7 @@ public class AuthView {
     }
 
     private void initializeUI() {
-        frame = new JFrame("Hmail Login");
+        frame = new JFrame("Authenication");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setSize(400, 300);
@@ -223,7 +226,9 @@ public class AuthView {
     }
 
     public void show() {
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            frame.setVisible(true);
+        });
     }
 
     private void showMessage(String message, boolean type) {
@@ -359,8 +364,11 @@ public class AuthView {
     }
 
     private void showMainView() {
-        MainView mainView = new MainView(_user);
-        mainView.show();
+        _config = Helper.readXML();
+        _emails = Helper.getMail(_user, _config);
         frame.setVisible(false);
+        new MainView(_user, _config, _emails).show();
+        //
+        System.out.println(_config.getFilterMap().get("Important").get("From").toString());
     }
 }
