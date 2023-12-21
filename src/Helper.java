@@ -443,16 +443,20 @@ public class Helper {
 
                         if (email.getTag() == "Inbox") {
                             _config.getFilterMap().forEach((k, v) -> {
-                                if (v.get("SUBJECT").contains(subject)) {
-                                    email.setTag(k);
+                                for (String s : v.get("Subject")) {
+                                    if (subject.contains(s)) {
+                                        email.setTag(k);
+                                    }
                                 }
                             });
                         }
 
                         if (email.getTag() == "Inbox") {
                             _config.getFilterMap().forEach((k, v) -> {
-                                if (v.get("Body").contains(body)) {
-                                    email.setTag(k);
+                                for (String s : v.get("Body")) {
+                                    if (body.contains(s)) {
+                                        email.setTag(k);
+                                    }
                                 }
                             });
                         }
@@ -460,8 +464,10 @@ public class Helper {
                         if (email.getTag() == "Inbox") {
                             String content = subject + body;
                             _config.getFilterMap().forEach((k, v) -> {
-                                if (v.get("Content").contains(content)) {
-                                    email.setTag(k);
+                                for (String s : v.get("Content")) {
+                                    if (content.contains(s)) {
+                                        email.setTag(k);
+                                    }
                                 }
                             });
                         }
