@@ -61,7 +61,6 @@ public class MainView {
         topPanel.add(newMailButton);
 
         JPanel leftPanel = new JPanel();
-        // leftPanel.setBackground(Color.GREEN);
         leftPanel.setLayout(new BorderLayout());
         leftPanel.setBackground(PrimaryColor);
         leftPanel.setForeground(OnPrimaryColor);
@@ -79,8 +78,19 @@ public class MainView {
         leftPanel.add(folderList, BorderLayout.NORTH);
 
         JPanel mailPanel = new JPanel();
+        mailPanel.setLayout(new BorderLayout());
         mailPanel.setBackground(PrimaryColor);
         mailPanel.setForeground(OnPrimaryColor);
+
+        DefaultListModel<EmailModel> mailListModel = new DefaultListModel<>();
+        JList<EmailModel> mailList = new JList<>(mailListModel);
+        for (EmailModel email : _emails) {
+            mailListModel.addElement(email);
+        }
+        mailList.setCellRenderer(new EmailListCellRenderer());
+        mailList.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+
+        mailPanel.add(mailList, BorderLayout.CENTER);
 
         JPanel mailDetailPanel = new JPanel();
         mailDetailPanel.setBackground(PrimaryColor);

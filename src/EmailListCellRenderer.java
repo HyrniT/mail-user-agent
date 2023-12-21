@@ -11,19 +11,24 @@ class EmailListCellRenderer extends JPanel implements ListCellRenderer<EmailMode
 
     public EmailListCellRenderer() {
         setLayout(new BorderLayout());
+        
         titleLabel = new JLabel();
         titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
         add(titleLabel, BorderLayout.NORTH);
 
         contentLabel = new JLabel();
         contentLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        add(contentLabel, BorderLayout.WEST);
+        add(contentLabel, BorderLayout.CENTER);
 
         timeLabel = new JLabel();
-        timeLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        timeLabel.setForeground(Color.GRAY);
+        timeLabel.setFont(new Font("Arial", Font.PLAIN, 10));
+        timeLabel.setBackground(Color.BLUE);
         add(timeLabel, BorderLayout.EAST);
 
-        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
     }
 
     @Override
@@ -32,10 +37,10 @@ class EmailListCellRenderer extends JPanel implements ListCellRenderer<EmailMode
         String formattedDateTime = LocalDateTime
                 .parse(value.getDate(),
                         DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH))
-                .format(DateTimeFormatter.ofPattern("HH/mm dd/MM/yy"));
+                .format(DateTimeFormatter.ofPattern("HH:mm dd/MM/yy"));
 
-        titleLabel.setToolTipText(value.getTitle());
-        contentLabel.setToolTipText(value.getContent());
+        titleLabel.setText(value.getTitle());
+        contentLabel.setText(value.getContent());
         timeLabel.setText(formattedDateTime);
 
         if (isSelected) {

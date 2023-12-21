@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
@@ -253,7 +256,7 @@ public class AuthView {
 
     private void loadUsers() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("./.data/users.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("./data/users.txt"));
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -272,7 +275,11 @@ public class AuthView {
 
     private void insertUser(String email, String password, String fullname) {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("./.data/users.txt", true));
+            Path directoryPath = Paths.get("data");
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath);
+            }
+            BufferedWriter writer = new BufferedWriter(new FileWriter("./data/users.txt", true));
             writer.write(email + "," + password + "," + fullname);
             writer.newLine();
             writer.close();
@@ -318,8 +325,9 @@ public class AuthView {
 
         clearField();
         JOptionPane.showMessageDialog(frame, "Register Successfully! Please login again.", "", JOptionPane.INFORMATION_MESSAGE);
-        tabbedPane.setSelectedIndex(0);
         insertUser(email, password, fullname);
+        tabbedPane.setSelectedIndex(0);
+        loadUsers();
         _users.add(new UserModel(email, fullname, password));
     }
 

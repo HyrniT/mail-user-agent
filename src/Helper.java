@@ -283,6 +283,7 @@ public class Helper {
                         }
                         if (emailLine.startsWith("Content-Transfer-Encoding: 7bit")) {
                             isContentSession = true;
+                            continue;
                         }
                         if (isAttachmentSession) {
                             attachmentContent.append(emailLine).append("\r\n");
@@ -376,7 +377,7 @@ public class Helper {
 
     private static void saveEmailContent(String userEmail, String fileName, String content) {
         try {
-            Path directoryPath = Paths.get(".data", userEmail);
+            Path directoryPath = Paths.get("data", userEmail, "emails");
             if (!Files.exists(directoryPath)) {
                 Files.createDirectories(directoryPath);
             }
@@ -395,7 +396,7 @@ public class Helper {
 
     private static void saveEmailAttachment(String userEmail, String fileName, byte[] content) {
         try {
-            Path directoryPath = Paths.get(".data", userEmail);
+            Path directoryPath = Paths.get("data", userEmail);
             if (!Files.exists(directoryPath)) {
                 Files.createDirectories(directoryPath);
             }
@@ -428,7 +429,7 @@ public class Helper {
     private static Set<String> loadExistingUIDLs(String userEmail) {
         Set<String> existingUIDLs = new HashSet<>();
         try {
-            Path filePath = Paths.get(".data", userEmail, "emails.txt");
+            Path filePath = Paths.get("data", userEmail, "emails.txt");
             if (Files.exists(filePath)) {
                 existingUIDLs.addAll(Files.readAllLines(filePath));
             }
@@ -440,7 +441,7 @@ public class Helper {
 
     private static void saveExistingUIDLs(String userEmail, Set<String> existingUIDLs) {
         try {
-            Path directoryPath = Paths.get(".data", userEmail);
+            Path directoryPath = Paths.get("data", userEmail);
             if (!Files.exists(directoryPath)) {
                 Files.createDirectories(directoryPath);
             }
