@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class MainView {
     private final Color PrimaryColor = Color.WHITE;
@@ -13,6 +15,9 @@ public class MainView {
 
     private JFrame frame;
     private JButton newMailButton;
+    private JList<String> folderList;
+    private JList<EmailModel> mailList;
+    private DefaultListModel<EmailModel> mailListModel;
 
     private UserModel _user;
     private ConfigModel _config;
@@ -62,8 +67,7 @@ public class MainView {
         defaultListModel.addElement("WORK");
         defaultListModel.addElement("SPAM");
 
-        JList<String> folderList = new JList<>(defaultListModel);
-        folderList.setSelectedIndex(0);
+        folderList = new JList<>(defaultListModel);
         folderList.setCellRenderer(new FolderListCellRender());
         folderList.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         leftPanel.add(folderList, BorderLayout.NORTH);
@@ -72,26 +76,24 @@ public class MainView {
         mailPanel.setLayout(new BorderLayout());
         mailPanel.setBackground(PrimaryColor);
         mailPanel.setForeground(OnPrimaryColor);
-
-        DefaultListModel<EmailModel> mailListModel = new DefaultListModel<>();
-        JList<EmailModel> mailList = new JList<>(mailListModel);
-        for (EmailModel email : _emails) {
-            if (email.getTag() == "INBOX") {
-                mailListModel.addElement(email);
-            }
-        }
+        
+        mailListModel = new DefaultListModel<>();
+        mailList = new JList<>(mailListModel);
         mailList.setCellRenderer(new EmailListCellRenderer());
         mailList.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        JScrollPane mailListScrollPane = new JScrollPane(mailList);
+        mailListScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        mailListScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        mailPanel.add(mailList, BorderLayout.CENTER);
+        mailPanel.add(mailListScrollPane, BorderLayout.CENTER);
 
         JPanel mailDetailPanel = new JPanel();
         mailDetailPanel.setBackground(PrimaryColor);
         mailDetailPanel.setForeground(OnPrimaryColor);
 
-        JSplitPane mailSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mailPanel, mailDetailPanel);
+        JSplitPane mailSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mailListScrollPane, mailDetailPanel);
         mailSplitPane.setDividerSize(2);
-        mailSplitPane.setDividerLocation(200);
+        mailSplitPane.setDividerLocation(250);
         
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
@@ -114,6 +116,19 @@ public class MainView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new ComposeView(_user, _config).show();
+            }
+        });
+
+        folderList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                String selectedFolder = folderList.getSelectedValue();
+                mailListModel.clear();
+                for (EmailModel email : _emails) {
+                    if (email.getTag() == selectedFolder) {
+                        mailListModel.addElement(email);
+                    }
+                }
             }
         });
     }
