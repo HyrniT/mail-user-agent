@@ -27,7 +27,16 @@ public class MainView {
         this._user = user;
         this._config = config;
         this._emails = emails;
-        
+        new Thread(() -> {
+            while(true) {
+                try {
+                    Thread.sleep(1000 * Integer.parseInt(_config.getAutoload()));
+                    Helper.getMails(user, config, emails);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void initializeUI() {
