@@ -85,7 +85,9 @@ public class MainView {
         DefaultListModel<EmailModel> mailListModel = new DefaultListModel<>();
         JList<EmailModel> mailList = new JList<>(mailListModel);
         for (EmailModel email : _emails) {
-            mailListModel.addElement(email);
+            if (email.getTag() == "INBOX") {
+                mailListModel.addElement(email);
+            }
         }
         mailList.setCellRenderer(new EmailListCellRenderer());
         mailList.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
