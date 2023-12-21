@@ -14,17 +14,18 @@ class EmailListCellRenderer extends JPanel implements ListCellRenderer<EmailMode
         
         titleLabel = new JLabel();
         titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        add(titleLabel, BorderLayout.NORTH);
+        add(titleLabel, BorderLayout.CENTER);
 
         contentLabel = new JLabel();
         contentLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        add(contentLabel, BorderLayout.CENTER);
+        add(contentLabel, BorderLayout.SOUTH);
 
         timeLabel = new JLabel();
         timeLabel.setForeground(Color.GRAY);
         timeLabel.setFont(new Font("Arial", Font.PLAIN, 10));
         timeLabel.setBackground(Color.BLUE);
-        add(timeLabel, BorderLayout.EAST);
+        timeLabel.setHorizontalAlignment(JLabel.RIGHT);
+        add(timeLabel, BorderLayout.NORTH);
 
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),

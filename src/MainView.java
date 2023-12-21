@@ -66,13 +66,14 @@ public class MainView {
         leftPanel.setForeground(OnPrimaryColor);
 
         DefaultListModel<String> defaultListModel = new DefaultListModel<>();
-        defaultListModel.addElement("Inbox");
-        defaultListModel.addElement("Project");
-        defaultListModel.addElement("Important");
-        defaultListModel.addElement("Work");
-        defaultListModel.addElement("Spam");
+        defaultListModel.addElement("INBOX");
+        defaultListModel.addElement("PROJECT");
+        defaultListModel.addElement("IMPORTANT");
+        defaultListModel.addElement("WORK");
+        defaultListModel.addElement("SPAM");
 
         JList<String> folderList = new JList<>(defaultListModel);
+        folderList.setSelectedIndex(0);
         folderList.setCellRenderer(new FolderListCellRender());
         folderList.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         leftPanel.add(folderList, BorderLayout.NORTH);
