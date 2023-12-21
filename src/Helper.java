@@ -270,6 +270,7 @@ public class Helper {
                 
                 for (int i = 1; i <= numOfEmails; i++) {
                     sendCommand(writer, "RETR " + i);
+                    System.out.println(reader.readLine());
                     
                     String emailLine;
                     StringBuilder emailHeader = new StringBuilder();
@@ -300,7 +301,7 @@ public class Helper {
                         String uidlResponseLine = uidlList.get(i);
                         String[] uidlParts = uidlResponseLine.split(" ");
                         if (uidlParts.length >= 2) {
-                            String uid = uidlParts[1];
+                            String uid = uidlParts[1].substring(0, uidlParts[1].length() - 4);
                             if (!existingUIDLs.contains(uid)) {
                                 EmailModel email = new EmailModel();
                                 email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
@@ -320,7 +321,7 @@ public class Helper {
 
                                 saveEmailContent(user.getEmail(), uid, emailHeader.toString() + emailContent.toString() + attachmentContent.toString());
 
-                                System.out.println("Email saved: " + user.getEmail() + "/" + uid);
+                                System.out.println("Email saved: " + user.getEmail() + "/" + uid + ".txt");
                                 System.out.println("--------------------------------------------------");
 
                                 existingUIDLs.add(uid);
@@ -382,7 +383,7 @@ public class Helper {
                 Files.createDirectories(directoryPath);
             }
 
-            Path filePath = Paths.get(directoryPath.toString(), fileName);
+            Path filePath = Paths.get(directoryPath.toString(), fileName + ".txt");
 
             try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8)) {
                 writer.write(content);
