@@ -377,7 +377,6 @@ public class Helper {
             }
 
             sendCommand(writer, "QUIT");
-            System.out.println("Files attached: " + attachmentFiles.toString());
 
         } catch (IOException e) {
             e.printStackTrace();
