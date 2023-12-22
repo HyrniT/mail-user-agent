@@ -209,7 +209,7 @@ public class Helper {
                     File file = new File(attachmentFile);
                     if (file.exists()) {
                         sendCommand(writer, "--separator");
-                        String contentType = Files.probeContentType(Path.of(attachmentFile));
+                        String contentType = Files.probeContentType(Paths.get(attachmentFile));
                         sendCommand(writer, "Content-Type: " + contentType + "; name=\"" + file.getName() + "\"");
                         sendCommand(writer, "Content-Disposition: attachment; filename=\"" + file.getName() + "\"");
                         sendCommand(writer, "Content-Transfer-Encoding: base64");
