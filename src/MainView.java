@@ -240,6 +240,8 @@ public class MainView {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 attachmentPanel.removeAll();
+                attachmentPanel.revalidate();
+                attachmentPanel.repaint();
                 selectedEmail = mailList.getSelectedValue();
                 if (selectedEmail != null) {
                     fromValueLabel.setText(selectedEmail.getFrom());
@@ -258,7 +260,7 @@ public class MainView {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     try {
-                                        Desktop.getDesktop().open(new File(attachmentFile));
+                                        Desktop.getDesktop().open(file);
                                     } catch (IOException e1) {
                                         e1.printStackTrace();
                                     }
