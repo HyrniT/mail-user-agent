@@ -22,6 +22,8 @@ public class MainView {
     private JTextArea contentTextArea;
     private JPanel attachmentPanel;
 
+    private EmailModel selectedEmail = null;
+
     private UserModel _user;
     private ConfigModel _config;
     private List<EmailModel> _emails;
@@ -31,7 +33,7 @@ public class MainView {
         this._config = config;
         this._emails = emails;
         new Thread(() -> {
-            while(true) {
+            while (true) {
                 try {
                     Thread.sleep(1000 * Integer.parseInt(_config.getAutoload()));
                     Helper.getMails(user, config, emails);
@@ -61,7 +63,7 @@ public class MainView {
 
         newMailButton = new JButton("NEW EMAIL");
         newMailButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        newMailButton.setFont(new Font(FontName, Font.BOLD, 14));      
+        newMailButton.setFont(new Font(FontName, Font.BOLD, 14));
         newMailButton.setMargin(new Insets(5, 20, 5, 20));
         newMailButton.setFocusPainted(false);
 
@@ -88,7 +90,7 @@ public class MainView {
         mailPanel.setLayout(new BorderLayout());
         mailPanel.setBackground(PrimaryColor);
         mailPanel.setForeground(OnPrimaryColor);
-        
+
         mailListModel = new DefaultListModel<>();
         mailList = new JList<>(mailListModel);
         mailList.setCellRenderer(new EmailListCellRenderer());
@@ -197,7 +199,7 @@ public class MainView {
         JSplitPane mailSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mailListScrollPane, mailDetailPanel);
         mailSplitPane.setDividerSize(2);
         mailSplitPane.setDividerLocation(250);
-        
+
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
         rightPanel.add(mailSplitPane, BorderLayout.CENTER);
@@ -226,8 +228,6 @@ public class MainView {
             public void valueChanged(ListSelectionEvent e) {
                 String selectedFolder = folderList.getSelectedValue();
                 mailListModel.clear();
-                // mailList.clearSelection();
-                // mailList.repaint();
                 for (EmailModel email : _emails) {
                     if (email.getTag() == selectedFolder) {
                         mailListModel.addElement(email);
@@ -240,34 +240,31 @@ public class MainView {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 attachmentPanel.removeAll();
-                // attachmentPanel.revalidate();
-                // attachmentPanel.repaint();
-                // mailDetailPanel.setVisible(true);
-                EmailModel selectedEmail = mailList.getSelectedValue();
-                fromValueLabel.setText(selectedEmail.getFrom());
-                toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
-                subjectValueLabel.setText(selectedEmail.getTitle());
-                contentTextArea.setText(selectedEmail.getContent());
-                if (selectedEmail.getAttachmentFiles() != null) {
-                    for (String attachmentFile : selectedEmail.getAttachmentFiles()) {
-                        File file = Paths.get("data", _user.getEmail(), attachmentFile).toFile();
-                        System.out.println(attachmentFile);
-                        JButton openFileButton = new JButton(file.getName());
-                        openFileButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                        openFileButton.setFont(new Font(FontName, Font.PLAIN, 14));
-                        openFileButton.setMargin(new Insets(5, 20, 5, 20));
-                        openFileButton.setFocusPainted(false);
-                        attachmentPanel.add(openFileButton);
-                        openFileButton.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                try {
-                                    Desktop.getDesktop().open(new File(attachmentFile));
-                                } catch (IOException e1) {
-                                    e1.printStackTrace();
+                selectedEmail = mailList.getSelectedValue();
+                if (selectedEmail != null) {
+                    fromValueLabel.setText(selectedEmail.getFrom());
+                    toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
+                    subjectValueLabel.setText(selectedEmail.getTitle());
+                    contentTextArea.setText(selectedEmail.getContent());
+                    if (selectedEmail.getAttachmentFiles() != null) {
+                        for (String attachmentFile : selectedEmail.getAttachmentFiles()) {
+                            File file = Paths.get("data", _user.getEmail(), attachmentFile).toFile();
+                            JButton openFileButton = new JButton(file.getName());
+                            openFileButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                            openFileButton.setFont(new Font(FontName, Font.PLAIN, 14));
+                            openFileButton.setFocusPainted(false);
+                            attachmentPanel.add(openFileButton);
+                            openFileButton.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    try {
+                                        Desktop.getDesktop().open(new File(attachmentFile));
+                                    } catch (IOException e1) {
+                                        e1.printStackTrace();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                 }
             }
