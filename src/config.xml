@@ -8,28 +8,28 @@
     </General>
     <Filter>
         <Project>
-            <From>test@mail.com</From>
+            <From></From>
             <Subject></Subject>
             <Body></Body>
             <Content></Content>
         </Project>
         <Important>
-            <From>urgent,ASAP</From>
-            <Subject></Subject>
+            <From></From>
+            <Subject>urgent,ASAP</Subject>
             <Body></Body>
             <Content></Content>
         </Important>
         <Work>
             <From></From>
             <Subject></Subject>
-            <Body></Body>
+            <Body>report,meeting</Body>
             <Content></Content>
         </Work>
         <Spam>
             <From></From>
             <Subject></Subject>
             <Body></Body>
-            <Content></Content>
+            <Content>virus,hack,crack</Content>
         </Spam>
     </Filter>
 </Config>

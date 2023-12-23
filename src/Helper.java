@@ -322,7 +322,7 @@ public class Helper {
                                 email.setTitle(subject);
                                 email.setContent(body);
 
-                                if (email.getTag() == "Inbox") {
+                                if (email.getTag().equals("Inbox")) {
                                     _config.getFilterMap().forEach((k, v) -> {
                                         if (v.get("From").contains(from)) {
                                             email.setTag(k);
@@ -330,27 +330,33 @@ public class Helper {
                                     });
                                 }
 
-                                if (email.getTag() == "Inbox") {
+                                if (email.getTag().equals("Inbox")) {
                                     _config.getFilterMap().forEach((k, v) -> {
-                                        if (v.get("SUBJECT").contains(subject)) {
-                                            email.setTag(k);
+                                        for (String s : v.get("Subject")) {
+                                            if (subject.contains(s) && !s.isEmpty()) {
+                                                email.setTag(k);
+                                            }
                                         }
                                     });
                                 }
 
-                                if (email.getTag() == "Inbox") {
+                                if (email.getTag().equals("Inbox")) {
                                     _config.getFilterMap().forEach((k, v) -> {
-                                        if (v.get("Body").contains(body)) {
-                                            email.setTag(k);
+                                        for (String s : v.get("Body")) {
+                                            if (body.contains(s) && !s.isEmpty()) {
+                                                email.setTag(k);
+                                            }
                                         }
                                     });
                                 }
 
-                                if (email.getTag() == "Inbox") {
+                                if (email.getTag().equals("Inbox")) {
                                     String content = subject + body;
                                     _config.getFilterMap().forEach((k, v) -> {
-                                        if (v.get("Content").contains(content)) {
-                                            email.setTag(k);
+                                        for (String s : v.get("Content")) {
+                                            if (content.contains(s) && !s.isEmpty()) {
+                                                email.setTag(k);
+                                            }
                                         }
                                     });
                                 }
@@ -430,12 +436,13 @@ public class Helper {
 
                         String from = getValueFromEmailHeader(emailHeader.toString(), "From");
                         String subject = getValueFromEmailHeader(emailHeader.toString(), "Subject");
+                        System.out.println("Subject: " + subject);
                         String body = emailContent.toString();
                         email.setFrom(from);
                         email.setTitle(subject);
                         email.setContent(body);
 
-                        if (email.getTag() == "Inbox") {
+                        if (email.getTag().equals("Inbox")) {
                             _config.getFilterMap().forEach((k, v) -> {
                                 if (v.get("From").contains(from)) {
                                     email.setTag(k);
@@ -443,31 +450,31 @@ public class Helper {
                             });
                         }
 
-                        if (email.getTag() == "Inbox") {
+                        if (email.getTag().equals("Inbox")) {
                             _config.getFilterMap().forEach((k, v) -> {
                                 for (String s : v.get("Subject")) {
-                                    if (subject.contains(s)) {
+                                    if (subject.contains(s) && !s.isEmpty()) {
                                         email.setTag(k);
                                     }
                                 }
                             });
                         }
 
-                        if (email.getTag() == "Inbox") {
+                        if (email.getTag().equals("Inbox")) {
                             _config.getFilterMap().forEach((k, v) -> {
                                 for (String s : v.get("Body")) {
-                                    if (body.contains(s)) {
+                                    if (body.contains(s) && !s.isEmpty()) {
                                         email.setTag(k);
                                     }
                                 }
                             });
                         }
 
-                        if (email.getTag() == "Inbox") {
+                        if (email.getTag().equals("Inbox")) {
                             String content = subject + body;
                             _config.getFilterMap().forEach((k, v) -> {
                                 for (String s : v.get("Content")) {
-                                    if (content.contains(s)) {
+                                    if (content.contains(s) && !s.isEmpty()) {
                                         email.setTag(k);
                                     }
                                 }
