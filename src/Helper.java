@@ -555,7 +555,7 @@ public class Helper {
             }
 
             Path filePath = Paths.get(directoryPath.toString(), fileName);
-            attachmentFiles.add(filePath.toString());
+            attachmentFiles.add(fileName);
 
             Files.write(filePath, content);
         } catch (IOException e) {
