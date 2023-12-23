@@ -67,16 +67,12 @@ public class AuthView {
         loginEmailField.setForeground(OnPrimaryColor);
         loginEmailField.setCaretColor(OnPrimaryColor);
         loginEmailField.setPreferredSize(new Dimension(230, 24));
-        // Mốt xóa thằng này
-        loginEmailField.setText("test@mail.com");
 
         loginPasswordField = new JPasswordField();
         loginPasswordField.setBackground(PrimaryColor);
         loginPasswordField.setForeground(OnPrimaryColor);
         loginPasswordField.setCaretColor(OnPrimaryColor);
         loginPasswordField.setPreferredSize(new Dimension(230, 24));
-        // Mốt xóa thằng này
-        loginPasswordField.setText("123");
 
         loginMessageLabel = new JLabel();
         loginMessageLabel.setFont(new Font(FontName, Font.ITALIC, 12));

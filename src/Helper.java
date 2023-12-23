@@ -522,7 +522,7 @@ public class Helper {
             String value = matcher.group(1);
             return value.split(",");
         } else {
-            return new String[0]; // Trả về mảng rỗng nếu không tìm thấy giá trị
+            return new String[0];
         }
     }
 
