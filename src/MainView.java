@@ -61,6 +61,7 @@ public class MainView {
                             }
                         }
                     }
+                    clearField();
                 }
             });
         }, Long.valueOf(_config.getAutoload()), Long.valueOf(_config.getAutoload()), TimeUnit.SECONDS);
@@ -323,6 +324,16 @@ public class MainView {
                 }
             }
         });
+    }
+
+    private void clearField() {
+        fromValueLabel.setText("");
+        toValueLabel.setText("");
+        subjectValueLabel.setText("");
+        contentTextArea.setText("");
+        attachmentPanel.removeAll();
+        attachmentPanel.revalidate();
+        attachmentPanel.repaint();
     }
 
     public void show() {
