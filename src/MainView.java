@@ -3,6 +3,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,8 +23,8 @@ public class MainView {
     private JList<String> folderList;
     private JList<EmailModel> mailList;
     private DefaultListModel<EmailModel> mailListModel;
-    private JLabel fromValueLabel, toValueLabel, ccValueLabel, subjectValueLabel;
-    private JLabel fromLabel, toLabel, ccLabel, subjectLabel;
+    private JLabel fromValueLabel, toValueLabel, ccValueLabel, bccValueLabel, subjectValueLabel;
+    private JLabel fromLabel, toLabel, ccLabel, bccLabel, subjectLabel;
     private JTextArea contentTextArea;
     private JPanel attachmentPanel;
 
@@ -232,12 +233,34 @@ public class MainView {
         gbc.weightx = 0.85;
         headerPanel.add(ccValueLabel, gbc);
 
+        bccLabel = new JLabel("Bcc:");
+        bccLabel.setFont(new Font(FontName, Font.BOLD, 14));
+        bccLabel.setBackground(PrimaryColor);
+        bccLabel.setForeground(OnPrimaryColor);
+        bccLabel.setVisible(false);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.15;
+        headerPanel.add(bccLabel, gbc);
+
+        bccValueLabel = new JLabel();
+        bccValueLabel.setFont(new Font(FontName, Font.PLAIN, 14));
+        bccValueLabel.setBackground(PrimaryColor);
+        bccValueLabel.setForeground(OnPrimaryColor);
+        bccValueLabel.setVisible(false);
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.85;
+        headerPanel.add(bccValueLabel, gbc);
+
         subjectLabel = new JLabel("Subject:");
         subjectLabel.setFont(new Font(FontName, Font.BOLD, 14));
         subjectLabel.setBackground(PrimaryColor);
         subjectLabel.setForeground(OnPrimaryColor);
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 1;
         gbc.weightx = 0.15;
         headerPanel.add(subjectLabel, gbc);
@@ -247,7 +270,7 @@ public class MainView {
         subjectValueLabel.setBackground(PrimaryColor);
         subjectValueLabel.setForeground(OnPrimaryColor);
         gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 1;
         gbc.weightx = 0.85;
         headerPanel.add(subjectValueLabel, gbc);
@@ -327,24 +350,34 @@ public class MainView {
                 selectedEmail = mailList.getSelectedValue();
                 if (selectedEmail != null) {
                     visibleLabel();
+                    bccLabel.setVisible(false);
+                    bccValueLabel.setVisible(false);
+                    ccLabel.setVisible(false);
+                    ccValueLabel.setVisible(false);
                     String selectedEmailId = selectedEmail.getId();
                     fromValueLabel.setText(selectedEmail.getFrom());
                     subjectValueLabel.setText(selectedEmail.getTitle());
                     contentTextArea.setText(selectedEmail.getContent());
+
                     if (selectedEmail.getCc().length > 0) {
                         ccLabel.setVisible(true);
                         ccValueLabel.setVisible(true);
                         ccValueLabel.setText(String.join(", ", selectedEmail.getCc()));
-                    } else {
-                        ccLabel.setVisible(false);
-                        ccValueLabel.setVisible(false);
                     }
-                    if (selectedEmail.getBcc().length > 0 && !selectedEmail.getFrom().equals(_user.getEmail())) {
-                        ccLabel.setVisible(false);
-                        ccValueLabel.setVisible(false);
-                        toValueLabel.setText(_user.getEmail());
-                    } else {
-                        toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
+                    
+                    if (selectedEmail.getBcc().length > 0) {
+                        if (selectedEmail.getFrom().equals(_user.getEmail())) {
+                            toValueLabel.setText(_user.getEmail());
+                            bccLabel.setVisible(true);
+                            bccValueLabel.setVisible(true);
+                            bccValueLabel.setText(String.join(", ", selectedEmail.getBcc()));
+                        } else if (Arrays.asList(selectedEmail.getBcc()).contains(_user.getEmail())) {
+                            toValueLabel.setText(_user.getEmail());
+                            bccLabel.setVisible(false);
+                            bccValueLabel.setVisible(false);
+                            ccLabel.setVisible(false);
+                            ccValueLabel.setVisible(false);
+                        }
                     }
                     if (selectedEmail.getAttachmentFiles() != null) {
                         for (String attachmentFile : Helper.getAttachmentFileNamesFromSavedEmail(_user.getEmail(), selectedEmailId)) {
@@ -376,10 +409,12 @@ public class MainView {
         fromLabel.setVisible(false);
         toLabel.setVisible(false);
         ccLabel.setVisible(false);
+        bccLabel.setVisible(false);
         subjectLabel.setVisible(false);
         fromValueLabel.setVisible(false);
         toValueLabel.setVisible(false);
         ccValueLabel.setVisible(false);
+        bccValueLabel.setVisible(false);
         subjectValueLabel.setVisible(false);
     }
 
