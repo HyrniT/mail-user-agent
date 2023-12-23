@@ -41,7 +41,7 @@ public class MainView {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(() -> {
             SwingUtilities.invokeLater(() -> {
-                List<EmailModel> newEmails = Helper.getMails(user, config, new ArrayList<EmailModel>());
+                List<EmailModel> newEmails = Helper.getEmails(user, config, new ArrayList<EmailModel>());
                 System.out.println("New emails: " + newEmails.size());
 
                 if (!newEmails.isEmpty()) {

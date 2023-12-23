@@ -385,7 +385,7 @@ public class AuthView {
                 _emails = Helper.loadEmails(_user, _config, _emails);
 
                 // Get emails from the server
-                _emails = Helper.getMails(_user, _config, _emails);
+                _emails = Helper.getEmails(_user, _config, _emails);
                 return null;
             }
 

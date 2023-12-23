@@ -239,7 +239,7 @@ public class Helper {
         }
     }
 
-    public static List<EmailModel> getMails(UserModel user, ConfigModel config, List<EmailModel> emailList) {
+    public static List<EmailModel> getEmails(UserModel user, ConfigModel config, List<EmailModel> emailList) {
         String userEmail = user.getEmail();
 
         try (Socket socket = new Socket(config.getMailServer(), Integer.parseInt(config.getPOP3()));
