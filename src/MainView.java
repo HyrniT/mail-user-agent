@@ -22,7 +22,8 @@ public class MainView {
     private JList<String> folderList;
     private JList<EmailModel> mailList;
     private DefaultListModel<EmailModel> mailListModel;
-    private JLabel fromValueLabel, toValueLabel, subjectValueLabel;
+    private JLabel fromValueLabel, toValueLabel, ccValueLabel, subjectValueLabel;
+    private JLabel fromLabel, toLabel, ccLabel, subjectLabel;
     private JTextArea contentTextArea;
     private JPanel attachmentPanel;
 
@@ -61,7 +62,7 @@ public class MainView {
                             }
                         }
                     }
-                    clearField();
+                    hiddenLabel();
                 }
             });
         }, Long.valueOf(_config.getAutoload()), Long.valueOf(_config.getAutoload()), TimeUnit.SECONDS);
@@ -166,7 +167,7 @@ public class MainView {
         headerPanel.setBackground(PrimaryColor);
         headerPanel.setForeground(OnPrimaryColor);
 
-        JLabel fromLabel = new JLabel("From:");
+        fromLabel = new JLabel("From:");
         fromLabel.setFont(new Font(FontName, Font.BOLD, 14));
         fromLabel.setBackground(PrimaryColor);
         fromLabel.setForeground(OnPrimaryColor);
@@ -186,7 +187,7 @@ public class MainView {
         gbc.weightx = 0.85;
         headerPanel.add(fromValueLabel, gbc);
 
-        JLabel toLabel = new JLabel("To:");
+        toLabel = new JLabel("To:");
         toLabel.setFont(new Font(FontName, Font.BOLD, 14));
         toLabel.setBackground(PrimaryColor);
         toLabel.setForeground(OnPrimaryColor);
@@ -206,12 +207,32 @@ public class MainView {
         gbc.weightx = 0.85;
         headerPanel.add(toValueLabel, gbc);
 
-        JLabel subjectLabel = new JLabel("Subject:");
+        ccLabel = new JLabel("Cc:");
+        ccLabel.setFont(new Font(FontName, Font.BOLD, 14));
+        ccLabel.setBackground(PrimaryColor);
+        ccLabel.setForeground(OnPrimaryColor);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.15;
+        headerPanel.add(ccLabel, gbc);
+
+        ccValueLabel = new JLabel();
+        ccValueLabel.setFont(new Font(FontName, Font.PLAIN, 14));
+        ccValueLabel.setBackground(PrimaryColor);
+        ccValueLabel.setForeground(OnPrimaryColor);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.85;
+        headerPanel.add(ccValueLabel, gbc);
+
+        subjectLabel = new JLabel("Subject:");
         subjectLabel.setFont(new Font(FontName, Font.BOLD, 14));
         subjectLabel.setBackground(PrimaryColor);
         subjectLabel.setForeground(OnPrimaryColor);
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.weightx = 0.15;
         headerPanel.add(subjectLabel, gbc);
@@ -221,7 +242,7 @@ public class MainView {
         subjectValueLabel.setBackground(PrimaryColor);
         subjectValueLabel.setForeground(OnPrimaryColor);
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.weightx = 0.85;
         headerPanel.add(subjectValueLabel, gbc);
@@ -236,6 +257,8 @@ public class MainView {
         contentTextArea.setEditable(false);
         contentTextArea.setCaretColor(PrimaryColor);
         JScrollPane contentScrollPane = new JScrollPane(contentTextArea);
+        contentScrollPane.setBackground(PrimaryColor);
+        contentScrollPane.setForeground(OnPrimaryColor);
         contentScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         contentScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -265,6 +288,7 @@ public class MainView {
 
         frame.add(mainPanel);
         frame.setVisible(true);
+        hiddenLabel();
     }
 
     private void setupListeners() {
@@ -297,6 +321,7 @@ public class MainView {
                 
                 selectedEmail = mailList.getSelectedValue();
                 if (selectedEmail != null) {
+                    visibleLabel();
                     String selectedEmailId = selectedEmail.getId();
                     fromValueLabel.setText(selectedEmail.getFrom());
                     toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
@@ -327,14 +352,28 @@ public class MainView {
         });
     }
 
-    private void clearField() {
-        fromValueLabel.setText("");
-        toValueLabel.setText("");
-        subjectValueLabel.setText("");
-        contentTextArea.setText("");
-        attachmentPanel.removeAll();
-        attachmentPanel.revalidate();
-        attachmentPanel.repaint();
+    private void hiddenLabel() {
+        contentTextArea.setVisible(false);
+        fromLabel.setVisible(false);
+        toLabel.setVisible(false);
+        ccLabel.setVisible(false);
+        subjectLabel.setVisible(false);
+        fromValueLabel.setVisible(false);
+        toValueLabel.setVisible(false);
+        ccValueLabel.setVisible(false);
+        subjectValueLabel.setVisible(false);
+    }
+
+    private void visibleLabel() {
+        contentTextArea.setVisible(true);
+        fromLabel.setVisible(true);
+        toLabel.setVisible(true);
+        ccLabel.setVisible(true);
+        subjectLabel.setVisible(true);
+        fromValueLabel.setVisible(true);
+        toValueLabel.setVisible(true);
+        ccValueLabel.setVisible(true);
+        subjectValueLabel.setVisible(true);
     }
 
     public void show() {
