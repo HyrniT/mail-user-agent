@@ -2,7 +2,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -23,6 +27,8 @@ public class MainView {
     private JPanel attachmentPanel;
 
     private EmailModel selectedEmail = null;
+    private String selectedFolder = null;
+    // private String selectedEmailId = null;
 
     private UserModel _user;
     private ConfigModel _config;
@@ -32,16 +38,61 @@ public class MainView {
         this._user = user;
         this._config = config;
         this._emails = emails;
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(1000 * Integer.parseInt(_config.getAutoload()));
-                    Helper.getMails(user, config, emails);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(() -> {
+            SwingUtilities.invokeLater(() -> {
+                List<EmailModel> newEmails = Helper.getMails(user, config, new ArrayList<EmailModel>());
+                System.out.println("New emails: " + newEmails.size());
+
+                if (!newEmails.isEmpty()) {
+                    selectedFolder = folderList.getSelectedValue();
+                    mailListModel.clear();
+                    for (EmailModel newEmail : newEmails) {
+                        if (newEmail.getTag().equals(selectedFolder)) {
+                            _emails.add(0, newEmail);
+                            for (EmailModel email : _emails) {
+                                mailListModel.addElement(email);
+                                // System.out.println("Selected email: " + selectedEmailId);
+                                // if (email.getId().equals(selectedEmailId)) {
+                                //     mailList.setSelectedValue(selectedEmail, true);
+                                //     mailList.revalidate();
+                                //     mailList.repaint();
+                                // }
+                            }
+                        }
+                    }
                 }
-            }
-        }).start();
+            });
+        }, Long.valueOf(_config.getAutoload()), Long.valueOf(_config.getAutoload()), TimeUnit.SECONDS);
+        // new Thread(() -> {
+        //     while (true) {
+        //         try {
+        //             Thread.sleep(1000 * Integer.parseInt(_config.getAutoload()));
+        //             List<EmailModel> newEmails = Helper.getMails(user, config, emails);
+
+        //             if (!newEmails.isEmpty()) {
+        //                 SwingUtilities.invokeLater(() -> {
+        //                     selectedFolder = folderList.getSelectedValue();
+        //                     mailListModel.clear();
+        //                     for (EmailModel email : _emails) {
+        //                         if (email.getTag().equals(selectedFolder)) {
+        //                             mailListModel.addElement(email);
+        //                             if (selectedEmail != null && email.getId().equals(selectedEmailId)) {
+        //                                 System.out.println("selecting email");
+        //                                 mailList.setSelectedValue(selectedEmail, true);
+        //                                 mailList.revalidate();
+        //                                 mailList.repaint();
+        //                             }
+        //                         }
+        //                     }
+
+        //                 });
+        //             }
+        //         } catch (Exception e) {
+        //             e.printStackTrace();
+        //         }
+        //     }
+        // }).start();
     }
 
     private void initializeUI() {
@@ -84,7 +135,7 @@ public class MainView {
         folderList = new JList<>(defaultListModel);
         folderList.setCellRenderer(new FolderListCellRender());
         folderList.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        leftPanel.add(folderList, BorderLayout.NORTH);
+        leftPanel.add(folderList, BorderLayout.CENTER);
 
         JPanel mailPanel = new JPanel();
         mailPanel.setLayout(new BorderLayout());
@@ -226,10 +277,10 @@ public class MainView {
         folderList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                String selectedFolder = folderList.getSelectedValue();
+                selectedFolder = folderList.getSelectedValue();
                 mailListModel.clear();
                 for (EmailModel email : _emails) {
-                    if (email.getTag() == selectedFolder) {
+                    if (email.getTag().equals(selectedFolder)) {
                         mailListModel.addElement(email);
                     }
                 }
@@ -244,6 +295,7 @@ public class MainView {
                 attachmentPanel.repaint();
                 selectedEmail = mailList.getSelectedValue();
                 if (selectedEmail != null) {
+                    // selectedEmailId = selectedEmail.getId();
                     fromValueLabel.setText(selectedEmail.getFrom());
                     toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     subjectValueLabel.setText(selectedEmail.getTitle());

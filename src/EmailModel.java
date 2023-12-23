@@ -1,6 +1,7 @@
 import java.util.*;
 
 public class EmailModel {
+    private String id;
     private String from;
     private String[] to;
     private String[] cc;
@@ -31,6 +32,10 @@ public class EmailModel {
         this.title = title;
         this.content = content;
         this.attachmentFiles = attachmentFiles;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getFrom() {
@@ -67,6 +72,10 @@ public class EmailModel {
 
     public String getTag() {
         return tag;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setFrom(String from) {

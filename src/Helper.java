@@ -270,6 +270,7 @@ public class Helper {
                 }
 
                 Set<String> existingUIDLs = loadExistingUIDLs(userEmail);
+                // attachmentFiles.clear();
 
                 for (int i = 1; i <= numOfEmails; i++) {
                     sendCommand(writer, "RETR " + i);
@@ -308,6 +309,7 @@ public class Helper {
                             String uid = uidlParts[1].substring(0, uidlParts[1].length() - 4);
                             if (!existingUIDLs.contains(uid)) {
                                 EmailModel email = new EmailModel();
+                                email.setId(uid);
                                 email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
                                 email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
                                 email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
@@ -363,7 +365,7 @@ public class Helper {
                                 saveEmailContent(userEmail, uid, emailHeader.toString() + emailContent.toString()
                                         + attachmentContent.toString());
 
-                                System.out.println("Email saved: " + userEmail + "/" + uid + ".txt");
+                                System.out.println("Email saved: " + userEmail + File.separatorChar + uid + ".txt");
                                 System.out.println("--------------------------------------------------");
 
                                 existingUIDLs.add(uid);
@@ -420,6 +422,7 @@ public class Helper {
                         }
 
                         EmailModel email = new EmailModel();
+                        email.setId(file.getName().substring(0, file.getName().length() - 4));
                         email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
                         email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
                         email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
@@ -479,7 +482,7 @@ public class Helper {
                         emailList.add(0, email);
                         // emailList.sort((e1, e2) -> e2.getDate().compareTo(e1.getDate()));
 
-                        System.out.println("Email loaded: " + userEmail + "/" + file.getName());
+                        System.out.println("Email loaded: " + userEmail + File.separatorChar + file.getName());
                         System.out.println("--------------------------------------------------");
                     } catch (IOException e) {
                         e.printStackTrace();
