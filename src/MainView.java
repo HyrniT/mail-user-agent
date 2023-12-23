@@ -214,6 +214,7 @@ public class MainView {
         ccLabel.setFont(new Font(FontName, Font.BOLD, 14));
         ccLabel.setBackground(PrimaryColor);
         ccLabel.setForeground(OnPrimaryColor);
+        ccLabel.setVisible(false);
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 1;
@@ -224,6 +225,7 @@ public class MainView {
         ccValueLabel.setFont(new Font(FontName, Font.PLAIN, 14));
         ccValueLabel.setBackground(PrimaryColor);
         ccValueLabel.setForeground(OnPrimaryColor);
+        ccValueLabel.setVisible(false);
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.gridwidth = 1;
@@ -330,6 +332,14 @@ public class MainView {
                     toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     subjectValueLabel.setText(selectedEmail.getTitle());
                     contentTextArea.setText(selectedEmail.getContent());
+                    if (selectedEmail.getCc().length > 0) {
+                        ccLabel.setVisible(true);
+                        ccValueLabel.setVisible(true);
+                        ccValueLabel.setText(String.join(", ", selectedEmail.getCc()));
+                    } else {
+                        ccLabel.setVisible(false);
+                        ccValueLabel.setVisible(false);
+                    }
                     if (selectedEmail.getAttachmentFiles() != null) {
                         for (String attachmentFile : Helper.getAttachmentFileNamesFromSavedEmail(_user.getEmail(), selectedEmailId)) {
                             File file = Paths.get("data", _user.getEmail(), attachmentFile).toFile();
@@ -371,11 +381,11 @@ public class MainView {
         contentTextArea.setVisible(true);
         fromLabel.setVisible(true);
         toLabel.setVisible(true);
-        ccLabel.setVisible(true);
+        // ccLabel.setVisible(true);
         subjectLabel.setVisible(true);
         fromValueLabel.setVisible(true);
         toValueLabel.setVisible(true);
-        ccValueLabel.setVisible(true);
+        // ccValueLabel.setVisible(true);
         subjectValueLabel.setVisible(true);
     }
 
