@@ -294,15 +294,16 @@ public class MainView {
                 attachmentPanel.removeAll();
                 attachmentPanel.revalidate();
                 attachmentPanel.repaint();
+                
                 selectedEmail = mailList.getSelectedValue();
                 if (selectedEmail != null) {
-                    // selectedEmailId = selectedEmail.getId();
+                    String selectedEmailId = selectedEmail.getId();
                     fromValueLabel.setText(selectedEmail.getFrom());
                     toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     subjectValueLabel.setText(selectedEmail.getTitle());
                     contentTextArea.setText(selectedEmail.getContent());
                     if (selectedEmail.getAttachmentFiles() != null) {
-                        for (String attachmentFile : selectedEmail.getAttachmentFiles()) {
+                        for (String attachmentFile : Helper.getAttachmentFileNamesFromSavedEmail(_user.getEmail(), selectedEmailId)) {
                             File file = Paths.get("data", _user.getEmail(), attachmentFile).toFile();
                             JButton openFileButton = new JButton(file.getName());
                             openFileButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

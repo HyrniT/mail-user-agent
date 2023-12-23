@@ -619,4 +619,38 @@ public class Helper {
             e.printStackTrace();
         }
     }
+
+    public static List<String> getAttachmentFileNamesFromSavedEmail(String userEmail, String emailId) {
+        List<String> attachmentFileNames = new ArrayList<>();
+
+        try {
+            Path filePath = Paths.get("data", userEmail, "emails", emailId + ".txt");
+
+            if (Files.exists(filePath)) {
+                String emailContent = new String(Files.readAllBytes(filePath));
+
+                attachmentFileNames = getAttachmentFileNames(emailContent);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return attachmentFileNames;
+    }
+
+    private static List<String> getAttachmentFileNames(String emailContent) {
+        List<String> attachmentFileNames = new ArrayList<>();
+
+        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?--separator";
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL);
+
+        Matcher matcher = pattern.matcher(emailContent);
+
+        while (matcher.find()) {
+            String fileName = matcher.group(1);
+            attachmentFileNames.add(fileName);
+        }
+
+        return attachmentFileNames;
+    }
 }
