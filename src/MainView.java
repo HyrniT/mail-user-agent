@@ -329,7 +329,6 @@ public class MainView {
                     visibleLabel();
                     String selectedEmailId = selectedEmail.getId();
                     fromValueLabel.setText(selectedEmail.getFrom());
-                    toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     subjectValueLabel.setText(selectedEmail.getTitle());
                     contentTextArea.setText(selectedEmail.getContent());
                     if (selectedEmail.getCc().length > 0) {
@@ -339,6 +338,13 @@ public class MainView {
                     } else {
                         ccLabel.setVisible(false);
                         ccValueLabel.setVisible(false);
+                    }
+                    if (selectedEmail.getBcc().length > 0 && !selectedEmail.getFrom().equals(_user.getEmail())) {
+                        ccLabel.setVisible(false);
+                        ccValueLabel.setVisible(false);
+                        toValueLabel.setText(_user.getEmail());
+                    } else {
+                        toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     }
                     if (selectedEmail.getAttachmentFiles() != null) {
                         for (String attachmentFile : Helper.getAttachmentFileNamesFromSavedEmail(_user.getEmail(), selectedEmailId)) {

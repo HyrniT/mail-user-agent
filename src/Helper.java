@@ -518,12 +518,12 @@ public class Helper {
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(emailContent);
 
-        List<String> values = new ArrayList<>();
-        while (matcher.find()) {
-            values.add(matcher.group(1));
+        if (matcher.find()) {
+            String value = matcher.group(1);
+            return value.split(",");
+        } else {
+            return new String[0]; // Trả về mảng rỗng nếu không tìm thấy giá trị
         }
-
-        return values.toArray(new String[0]);
     }
 
     private static void sendCommand(BufferedWriter writer, String command) {
