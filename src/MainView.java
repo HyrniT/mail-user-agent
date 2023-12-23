@@ -46,6 +46,7 @@ public class MainView {
                 System.out.println("New emails: " + newEmails.size());
 
                 if (!newEmails.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, _user.getFullname() + ", you have new email(s)!", "", JOptionPane.INFORMATION_MESSAGE);
                     selectedFolder = folderList.getSelectedValue();
                     mailListModel.clear();
                     for (EmailModel newEmail : newEmails) {
@@ -63,6 +64,8 @@ public class MainView {
                         }
                     }
                     hiddenLabel();
+                    folderList.clearSelection();
+                    mailList.clearSelection();
                 }
             });
         }, Long.valueOf(_config.getAutoload()), Long.valueOf(_config.getAutoload()), TimeUnit.SECONDS);
