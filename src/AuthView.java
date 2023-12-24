@@ -27,7 +27,7 @@ public class AuthView {
     }
 
     private void initializeUI() {
-        frame = new JFrame("Authentication");
+        frame = new JFrame("Authenication");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setSize(400, 300);
@@ -39,52 +39,152 @@ public class AuthView {
         loginPanel.setLayout(new BorderLayout());
 
         JLabel loginLabel = new JLabel("LOGIN");
-        setupLabel(loginLabel);
+        loginLabel.setOpaque(true);
+        loginLabel.setBackground(PrimaryColor);
+        loginLabel.setForeground(OnPrimaryColor);
+        loginLabel.setFont(new Font(FontName, Font.BOLD, 20));
+        loginLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        loginLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel loginEmailLabel = createLabel("Email:");
-        JLabel loginPasswordLabel = createLabel("Password:");
+        JLabel loginEmailLabel = new JLabel("Email:");
+        loginEmailLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        loginEmailLabel.setForeground(OnPrimaryColor);
+        loginEmailLabel.setBackground(PrimaryColor);
+        loginEmailLabel.setPreferredSize(new Dimension(120, 24));
 
-        loginEmailField = createTextField();
-        loginPasswordField = createPasswordField();
+        JLabel loginPasswordLabel = new JLabel("Password:");
+        loginPasswordLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        loginPasswordLabel.setForeground(OnPrimaryColor);
+        loginPasswordLabel.setBackground(PrimaryColor);
+        loginPasswordLabel.setPreferredSize(new Dimension(120, 24));
 
-        loginMessageLabel = createMessageLabel();
-        loginButton = createButton("Login");
+        loginEmailField = new JTextField();
+        loginEmailField.setBackground(PrimaryColor);
+        loginEmailField.setForeground(OnPrimaryColor);
+        loginEmailField.setCaretColor(OnPrimaryColor);
+        loginEmailField.setPreferredSize(new Dimension(230, 24));
 
-        JPanel loginFormPanel = createFormPanel(
-                new JLabel[]{loginEmailLabel, loginPasswordLabel},
-                new JComponent[]{loginEmailField, loginPasswordField, loginMessageLabel});
+        loginPasswordField = new JPasswordField();
+        loginPasswordField.setBackground(PrimaryColor);
+        loginPasswordField.setForeground(OnPrimaryColor);
+        loginPasswordField.setCaretColor(OnPrimaryColor);
+        loginPasswordField.setPreferredSize(new Dimension(230, 24));
 
-        JPanel loginButtonPanel = createButtonPanel(loginButton);
+        loginMessageLabel = new JLabel();
+        loginMessageLabel.setFont(new Font(FontName, Font.ITALIC, 12));
+        loginMessageLabel.setForeground(Color.RED);
+        loginMessageLabel.setBackground(PrimaryColor);
+        loginMessageLabel.setPreferredSize(new Dimension(360, 24));
 
-        setupPanel(loginPanel, loginLabel, loginFormPanel, loginButtonPanel);
+        loginButton = new JButton("Login");
+        loginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        loginButton.setFocusPainted(false);
+        JPanel loginButtonPanel = new JPanel(new FlowLayout());
+        loginButtonPanel.setBackground(PrimaryColor);
+        loginButtonPanel.add(loginButton);
+
+        JPanel loginFormPanel = new JPanel();
+        loginFormPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        loginFormPanel.setBackground(PrimaryColor);
+        loginFormPanel.add(loginEmailLabel);
+        loginFormPanel.add(loginEmailField);
+        loginFormPanel.add(loginPasswordLabel);
+        loginFormPanel.add(loginPasswordField);
+        loginFormPanel.add(loginMessageLabel);
+
+        loginPanel.add(loginLabel, BorderLayout.NORTH);
+        loginPanel.add(loginFormPanel, BorderLayout.CENTER);
+        loginPanel.add(loginButtonPanel, BorderLayout.SOUTH);
 
         // Register Panel
         JPanel registerPanel = new JPanel();
         registerPanel.setLayout(new BorderLayout());
 
         JLabel registerLabel = new JLabel("REGISTER");
-        setupLabel(registerLabel);
+        registerLabel.setOpaque(true);
+        registerLabel.setBackground(PrimaryColor);
+        registerLabel.setForeground(OnPrimaryColor);
+        registerLabel.setFont(new Font(FontName, Font.BOLD, 20));
+        registerLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        registerLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel registerFullnameLabel = createLabel("Fullname:");
-        JLabel registerEmailLabel = createLabel("Email:");
-        JLabel registerPasswordLabel = createLabel("Password:");
-        JLabel registerConfirmPasswordLabel = createLabel("Confirm password:");
+        JLabel registerFullnameLabel = new JLabel("Fullname:");
+        registerFullnameLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        registerFullnameLabel.setForeground(OnPrimaryColor);
+        registerFullnameLabel.setBackground(PrimaryColor);
+        registerFullnameLabel.setPreferredSize(new Dimension(120, 24));
 
-        registerEmailField = createTextField();
-        registerFullnameField = createTextField();
-        registerPasswordField = createPasswordField();
-        registerConfirmPasswordField = createPasswordField();
+        JLabel registerEmailLabel = new JLabel("Email:");
+        registerEmailLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        registerEmailLabel.setForeground(OnPrimaryColor);
+        registerEmailLabel.setBackground(PrimaryColor);
+        registerEmailLabel.setPreferredSize(new Dimension(120, 24));
 
-        registerMessageLabel = createMessageLabel();
-        registerButton = createButton("Register");
+        JLabel registerPasswordLabel = new JLabel("Password:");
+        registerPasswordLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        registerPasswordLabel.setForeground(OnPrimaryColor);
+        registerPasswordLabel.setBackground(PrimaryColor);
+        registerPasswordLabel.setPreferredSize(new Dimension(120, 24));
 
-        JPanel registerFormPanel = createFormPanel(
-                new JLabel[]{registerFullnameLabel, registerEmailLabel, registerPasswordLabel, registerConfirmPasswordLabel},
-                new JComponent[]{registerFullnameField, registerEmailField, registerPasswordField, registerConfirmPasswordField, registerMessageLabel});
+        JLabel registerConfirmPasswordLabel = new JLabel("Confirm password:");
+        registerConfirmPasswordLabel.setFont(new Font(FontName, Font.BOLD, 13));
+        registerConfirmPasswordLabel.setForeground(OnPrimaryColor);
+        registerConfirmPasswordLabel.setBackground(PrimaryColor);
+        registerConfirmPasswordLabel.setPreferredSize(new Dimension(120, 24));
 
-        JPanel registerButtonPanel = createButtonPanel(registerButton);
+        registerEmailField = new JTextField();
+        registerEmailField.setBackground(PrimaryColor);
+        registerEmailField.setForeground(OnPrimaryColor);
+        registerEmailField.setCaretColor(OnPrimaryColor);
+        registerEmailField.setPreferredSize(new Dimension(230, 24));
 
-        setupPanel(registerPanel, registerLabel, registerFormPanel, registerButtonPanel);
+        registerFullnameField = new JTextField();
+        registerFullnameField.setBackground(PrimaryColor);
+        registerFullnameField.setForeground(OnPrimaryColor);
+        registerFullnameField.setCaretColor(OnPrimaryColor);
+        registerFullnameField.setPreferredSize(new Dimension(230, 24));
+
+        registerPasswordField = new JPasswordField();
+        registerPasswordField.setBackground(PrimaryColor);
+        registerPasswordField.setForeground(OnPrimaryColor);
+        registerPasswordField.setCaretColor(OnPrimaryColor);
+        registerPasswordField.setPreferredSize(new Dimension(230, 24));
+
+        registerConfirmPasswordField = new JPasswordField();
+        registerConfirmPasswordField.setBackground(PrimaryColor);
+        registerConfirmPasswordField.setForeground(OnPrimaryColor);
+        registerConfirmPasswordField.setCaretColor(OnPrimaryColor);
+        registerConfirmPasswordField.setPreferredSize(new Dimension(230, 24));
+
+        registerMessageLabel = new JLabel();
+        registerMessageLabel.setFont(new Font(FontName, Font.ITALIC, 12));
+        registerMessageLabel.setForeground(Color.RED);
+        registerMessageLabel.setBackground(PrimaryColor);
+        registerMessageLabel.setPreferredSize(new Dimension(360, 24));
+
+        registerButton = new JButton("Register");
+        registerButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        registerButton.setFocusPainted(false);
+        JPanel registerButtonPanel = new JPanel(new FlowLayout());
+        registerButtonPanel.setBackground(PrimaryColor);
+        registerButtonPanel.add(registerButton);
+
+        JPanel registerFormPanel = new JPanel();
+        registerFormPanel.setBackground(PrimaryColor);
+        registerFormPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        registerFormPanel.add(registerFullnameLabel);
+        registerFormPanel.add(registerFullnameField);
+        registerFormPanel.add(registerEmailLabel);
+        registerFormPanel.add(registerEmailField);
+        registerFormPanel.add(registerPasswordLabel);
+        registerFormPanel.add(registerPasswordField);
+        registerFormPanel.add(registerConfirmPasswordLabel);
+        registerFormPanel.add(registerConfirmPasswordField);
+        registerFormPanel.add(registerMessageLabel);
+
+        registerPanel.add(registerLabel, BorderLayout.NORTH);
+        registerPanel.add(registerFormPanel, BorderLayout.CENTER);
+        registerPanel.add(registerButtonPanel, BorderLayout.SOUTH);
 
         // Add login & register panel into tabbed panel
         tabbedPane.addTab("Login", loginPanel);
@@ -94,85 +194,7 @@ public class AuthView {
         frame.add(tabbedPane);
         frame.setVisible(true);
     }
-
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font(FontName, Font.BOLD, 13));
-        label.setForeground(OnPrimaryColor);
-        label.setBackground(PrimaryColor);
-        label.setPreferredSize(new Dimension(120, 24));
-        return label;
-    }
-
-    private JTextField createTextField() {
-        JTextField textField = new JTextField();
-        textField.setBackground(PrimaryColor);
-        textField.setForeground(OnPrimaryColor);
-        textField.setCaretColor(OnPrimaryColor);
-        textField.setPreferredSize(new Dimension(230, 24));
-        return textField;
-    }
-
-    private JPasswordField createPasswordField() {
-        JPasswordField passwordField = new JPasswordField();
-        passwordField.setBackground(PrimaryColor);
-        passwordField.setForeground(OnPrimaryColor);
-        passwordField.setCaretColor(OnPrimaryColor);
-        passwordField.setPreferredSize(new Dimension(230, 24));
-        return passwordField;
-    }
-
-    private JLabel createMessageLabel() {
-        JLabel messageLabel = new JLabel();
-        messageLabel.setFont(new Font(FontName, Font.ITALIC, 12));
-        messageLabel.setForeground(Color.RED);
-        messageLabel.setBackground(PrimaryColor);
-        messageLabel.setPreferredSize(new Dimension(360, 24));
-        return messageLabel;
-    }
-
-    private JButton createButton(String text) {
-        JButton button = new JButton(text);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFocusPainted(false);
-        return button;
-    }
-
-    private JPanel createFormPanel(JLabel[] labels, JComponent[] components) {
-        JPanel formPanel = new JPanel();
-        formPanel.setBackground(PrimaryColor);
-        formPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-
-        for (int i = 0; i < labels.length; i++) {
-            formPanel.add(labels[i]);
-            formPanel.add(components[i]);
-        }
-
-        return formPanel;
-    }
-
-    private JPanel createButtonPanel(JButton button) {
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.setBackground(PrimaryColor);
-        buttonPanel.add(button);
-        return buttonPanel;
-    }
-
-    private void setupLabel(JLabel label) {
-        label.setOpaque(true);
-        label.setBackground(PrimaryColor);
-        label.setForeground(OnPrimaryColor);
-        label.setFont(new Font(FontName, Font.BOLD, 20));
-        label.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-    }
-
-    private void setupPanel(JPanel panel, JLabel label, JPanel formPanel, JPanel buttonPanel) {
-        panel.add(label, BorderLayout.NORTH);
-        panel.add(formPanel, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-    }
-
+    
     private void setupListeners() {
         loginButton.addActionListener(e -> {
             String email = loginEmailField.getText().trim();
