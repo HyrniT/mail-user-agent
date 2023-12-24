@@ -332,11 +332,15 @@ public class MainView {
             public void valueChanged(ListSelectionEvent e) {
                 selectedFolder = folderList.getSelectedValue();
                 mailListModel.clear();
+                if (_emails.isEmpty()) {
+                    _emails = Helper.getEmails(_user, _config, _emails);
+                }
                 for (EmailModel email : _emails) {
                     if (email.getTag().equals(selectedFolder)) {
                         mailListModel.addElement(email);
                     }
                 }
+                hiddenLabel();
             }
         });
 

@@ -14,15 +14,29 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class Helper {
+    
     private static ConfigModel _config;
     private static Map<String, Map<String, List<String>>> filterMap = new HashMap<>();
     private static Element filterElement;
     private static List<String> attachmentFiles = new ArrayList<>();
 
+    public static String jarPath;
+
+    public Helper() {
+        try {
+            jarPath = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
+                    .getParent();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static ConfigModel readXML() {
         try {
-            File file = new File("config.xml");
+            String filePath = Paths.get(jarPath, "config.xml").toString();
+            File file = new File(filePath);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(file);
@@ -395,7 +409,7 @@ public class Helper {
 
     public static List<EmailModel> loadEmails(UserModel user, ConfigModel config, List<EmailModel> emailList) {
         String userEmail = user.getEmail();
-        Path directoryPath = Paths.get("data", userEmail, "emails");
+        Path directoryPath = Paths.get(jarPath, "data", userEmail, "emails");
         File[] files = directoryPath.toFile().listFiles();
         if (files != null) {
             for (File file : files) {
@@ -537,7 +551,7 @@ public class Helper {
 
     private static void saveEmailContent(String userEmail, String fileName, String content) {
         try {
-            Path directoryPath = Paths.get("data", userEmail, "emails");
+            Path directoryPath = Paths.get(jarPath, "data", userEmail, "emails");
             if (!Files.exists(directoryPath)) {
                 Files.createDirectories(directoryPath);
             }
@@ -556,7 +570,7 @@ public class Helper {
 
     private static void saveEmailAttachment(String userEmail, String fileName, byte[] content) {
         try {
-            Path directoryPath = Paths.get("data", userEmail);
+            Path directoryPath = Paths.get(jarPath, "data", userEmail);
             if (!Files.exists(directoryPath)) {
                 Files.createDirectories(directoryPath);
             }
@@ -603,7 +617,7 @@ public class Helper {
     private static Set<String> loadExistingUIDLs(String userEmail) {
         Set<String> existingUIDLs = new HashSet<>();
         try {
-            Path filePath = Paths.get("data", userEmail, "emails.txt");
+            Path filePath = Paths.get(jarPath, "data", userEmail, "emails.txt");
             if (Files.exists(filePath)) {
                 existingUIDLs.addAll(Files.readAllLines(filePath));
             }
@@ -615,7 +629,7 @@ public class Helper {
 
     private static void saveExistingUIDLs(String userEmail, Set<String> existingUIDLs) {
         try {
-            Path directoryPath = Paths.get("data", userEmail);
+            Path directoryPath = Paths.get(jarPath, "data", userEmail);
             if (!Files.exists(directoryPath)) {
                 Files.createDirectories(directoryPath);
             }
@@ -631,7 +645,7 @@ public class Helper {
         List<String> attachmentFileNames = new ArrayList<>();
 
         try {
-            Path filePath = Paths.get("data", userEmail, "emails", emailId + ".txt");
+            Path filePath = Paths.get(jarPath, "data", userEmail, "emails", emailId + ".txt");
 
             if (Files.exists(filePath)) {
                 String emailContent = new String(Files.readAllBytes(filePath));
