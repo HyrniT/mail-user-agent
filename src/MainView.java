@@ -102,7 +102,7 @@ public class MainView {
     }
 
     private void initializeUI() {
-        frame = new JFrame("Mail Client");
+        frame = new JFrame(_user.getFullname() + " - " + _user.getEmail());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setSize(900, 600);
