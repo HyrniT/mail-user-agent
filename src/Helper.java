@@ -1,3 +1,4 @@
+import javax.swing.JOptionPane;
 import javax.xml.parsers.*;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -37,6 +38,12 @@ public class Helper {
         try {
             String filePath = Paths.get(jarPath, "config.xml").toString();
             File file = new File(filePath);
+
+            if (!file.exists()) {
+                JOptionPane.showMessageDialog(null, "Config file not found!", "Error", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+            
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(file);
