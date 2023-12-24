@@ -360,6 +360,7 @@ public class MainView {
                     ccValueLabel.setVisible(false);
                     String selectedEmailId = selectedEmail.getId();
                     fromValueLabel.setText(selectedEmail.getFrom());
+                    toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     subjectValueLabel.setText(selectedEmail.getTitle());
                     contentTextArea.setText(selectedEmail.getContent());
 
@@ -383,6 +384,7 @@ public class MainView {
                             ccValueLabel.setVisible(false);
                         }
                     }
+                    
                     if (selectedEmail.getAttachmentFiles() != null) {
                         for (String attachmentFile : Helper.getAttachmentFileNamesFromSavedEmail(_user.getEmail(), selectedEmailId)) {
                             File file = Paths.get("data", _user.getEmail(), attachmentFile).toFile();
