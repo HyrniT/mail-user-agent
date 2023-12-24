@@ -28,7 +28,7 @@ public class Helper {
     public Helper() {
         try {
             jarPath = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
-                    .getParent();
+                    .getAbsolutePath();
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -409,6 +409,7 @@ public class Helper {
 
         } catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Cannot connect to server!", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
         return emailList;
