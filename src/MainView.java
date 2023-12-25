@@ -48,20 +48,11 @@ public class MainView {
 
                 if (!newEmails.isEmpty()) {
                     JOptionPane.showMessageDialog(frame, _user.getFullname() + ", you have new email(s)!", "", JOptionPane.INFORMATION_MESSAGE);
-                    selectedFolder = folderList.getSelectedValue();
                     mailListModel.clear();
                     for (EmailModel newEmail : newEmails) {
-                        if (newEmail.getTag().equals(selectedFolder)) {
-                            _emails.add(0, newEmail);
-                            for (EmailModel email : _emails) {
-                                mailListModel.addElement(email);
-                                // System.out.println("Selected email: " + selectedEmailId);
-                                // if (email.getId().equals(selectedEmailId)) {
-                                //     mailList.setSelectedValue(selectedEmail, true);
-                                //     mailList.revalidate();
-                                //     mailList.repaint();
-                                // }
-                            }
+                        _emails.add(0, newEmail);
+                        for (EmailModel email : _emails) {
+                            mailListModel.addElement(email);
                         }
                     }
                     hiddenLabel();
@@ -69,36 +60,7 @@ public class MainView {
                     mailList.clearSelection();
                 }
             });
-        }, Long.valueOf(_config.getAutoload()), Long.valueOf(_config.getAutoload()), TimeUnit.SECONDS);
-        // new Thread(() -> {
-        //     while (true) {
-        //         try {
-        //             Thread.sleep(1000 * Integer.parseInt(_config.getAutoload()));
-        //             List<EmailModel> newEmails = Helper.getMails(user, config, emails);
-
-        //             if (!newEmails.isEmpty()) {
-        //                 SwingUtilities.invokeLater(() -> {
-        //                     selectedFolder = folderList.getSelectedValue();
-        //                     mailListModel.clear();
-        //                     for (EmailModel email : _emails) {
-        //                         if (email.getTag().equals(selectedFolder)) {
-        //                             mailListModel.addElement(email);
-        //                             if (selectedEmail != null && email.getId().equals(selectedEmailId)) {
-        //                                 System.out.println("selecting email");
-        //                                 mailList.setSelectedValue(selectedEmail, true);
-        //                                 mailList.revalidate();
-        //                                 mailList.repaint();
-        //                             }
-        //                         }
-        //                     }
-
-        //                 });
-        //             }
-        //         } catch (Exception e) {
-        //             e.printStackTrace();
-        //         }
-        //     }
-        // }).start();
+        }, 0L, Long.valueOf(_config.getAutoload()), TimeUnit.SECONDS);
     }
 
     private void initializeUI() {
