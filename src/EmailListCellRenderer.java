@@ -37,14 +37,14 @@ class EmailListCellRenderer extends JPanel implements ListCellRenderer<EmailMode
     @Override
     public Component getListCellRendererComponent(JList<? extends EmailModel> list, EmailModel value, int index,
             boolean isSelected, boolean cellHasFocus) {
-        // String formattedDateTime = LocalDateTime
-        //         .parse(value.getDate(),
-        //                 DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH))
-        //         .format(DateTimeFormatter.ofPattern("HH:mm dd/MM/yy"));
+        String formattedDateTime = LocalDateTime
+                .parse(value.getDate(),
+                        DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH))
+                .format(DateTimeFormatter.ofPattern("HH:mm dd/MM/yy"));
 
         titleLabel.setText(value.getTitle());
         contentLabel.setText(value.getContent());
-        // timeLabel.setText(formattedDateTime);
+        timeLabel.setText(formattedDateTime);
 
         if (isSelected) {
             setBackground(list.getSelectionBackground());
