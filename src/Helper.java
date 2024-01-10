@@ -15,9 +15,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class Helper {
-    
+
     private static ConfigModel _config;
     private static Map<String, Map<String, List<String>>> filterMap = new HashMap<>();
     private static Element filterElement;
@@ -43,7 +42,7 @@ public class Helper {
                 JOptionPane.showMessageDialog(null, "Config file not found!", "Error", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
-            
+
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(file);
@@ -146,6 +145,7 @@ public class Helper {
         try {
             String host = config.getMailServer();
             int port = Integer.parseInt(config.getSMTP());
+            boolean hasAttachment = mail.getAttachmentFiles() != null && mail.getAttachmentFiles().size() > 0;
 
             Socket socket = new Socket(host, port);
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -164,7 +164,7 @@ public class Helper {
 
             if (mail.getTo() != null) {
                 for (String to : mail.getTo()) {
-                    sendCommand(writer, "RCPT TO: <" + to + ">");
+                    sendCommand(writer, "RCPT TO:<" + to + ">");
                     System.out.println(reader.readLine());
                 }
             }
@@ -178,7 +178,7 @@ public class Helper {
 
             if (mail.getBcc() != null) {
                 for (String bcc : mail.getBcc()) {
-                    sendCommand(writer, "RCPT TO: <" + bcc + ">");
+                    sendCommand(writer, "RCPT TO:<" + bcc + ">");
                     System.out.println(reader.readLine());
                 }
             }
@@ -188,9 +188,15 @@ public class Helper {
             System.out.println(reader.readLine());
 
             Date currentDate = new Date();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
             dateFormat.setTimeZone(TimeZone.getDefault());
             String dateHeader = dateFormat.format(currentDate);
+
+            if (hasAttachment) {
+                sendCommand(writer, "Content-Type: multipart/mixed; boundary=\"separator\"");
+            }
+
+            sendCommand(writer, "Message-ID: <" + UUID.randomUUID().toString() + ">");
 
             sendCommand(writer, "Date: " + dateHeader);
 
@@ -198,7 +204,8 @@ public class Helper {
 
             sendCommand(writer, "User-Agent: Mozilla Thunderbird");
 
-            sendCommand(writer, "From: " + mail.getFrom());
+            sendCommand(writer, "Content-Language: en-US");
+
             if (mail.getTo() != null && mail.getTo().length > 0) {
                 sendCommand(writer, "To: " + String.join(",", mail.getTo()));
             }
@@ -211,21 +218,27 @@ public class Helper {
                 sendCommand(writer, "Bcc: " + String.join(",", mail.getBcc()));
             }
 
+            sendCommand(writer, "From: " + user.getFullname() + " <" + mail.getFrom().trim() + ">");
+
             if (mail.getTitle().length() > 0) {
-                sendCommand(writer, "Subject: " + mail.getTitle());
+                sendCommand(writer, "Subject: " + mail.getTitle().trim());
             }
 
+            if (hasAttachment) {
+                sendCommand(writer, "");
+                sendCommand(writer, "This is multi-part message in MIME format.");
+                sendCommand(writer, "--separator");
+            }
+
+            sendCommand(writer, "Content-Type: text/plain; charset=\"UTF-8\"; format=flowed");
+            sendCommand(writer, "Content-Transfer-Encoding: 7bit");
+            sendCommand(writer, "");
             if (mail.getContent().length() > 0) {
-                sendCommand(writer, "Content-Type: text/plain; charset=\"UTF-8\"");
-                sendCommand(writer, "Content-Transfer-Encoding: 7bit");
-                sendCommand(writer, "");
-                sendCommand(writer, mail.getContent());
+                sendCommand(writer, mail.getContent().trim());
                 sendCommand(writer, "");
             }
 
-            if (mail.getAttachmentFiles() != null && mail.getAttachmentFiles().size() > 0) {
-                sendCommand(writer, "");
-                sendCommand(writer, "Content-Type: multipart/mixed; boundary=separator");
+            if (hasAttachment) {
                 for (String attachmentFile : mail.getAttachmentFiles()) {
                     File file = new File(attachmentFile);
                     if (file.exists()) {
@@ -234,25 +247,24 @@ public class Helper {
                         sendCommand(writer, "Content-Type: " + contentType + "; name=\"" + file.getName() + "\"");
                         sendCommand(writer, "Content-Disposition: attachment; filename=\"" + file.getName() + "\"");
                         sendCommand(writer, "Content-Transfer-Encoding: base64");
-
                         sendCommand(writer, "");
-
                         byte[] fileBytes = Files.readAllBytes(Paths.get(attachmentFile));
                         String base64EncodedFile = Base64.getEncoder().encodeToString(fileBytes);
                         sendCommand(writer, base64EncodedFile);
-
                         sendCommand(writer, "");
                     }
                 }
+
                 sendCommand(writer, "--separator--");
             }
+
             sendCommand(writer, ".");
 
             System.out.println(reader.readLine());
 
-            sendCommand(writer, "QUIT");
+            // sendCommand(writer, "QUIT");
 
-            System.out.println(reader.readLine());
+            // System.out.println(reader.readLine());
 
             socket.close();
         } catch (Exception e) {
@@ -281,126 +293,78 @@ public class Helper {
             System.out.println(statResponse);
 
             if (statResponse.startsWith("+OK") && statResponse.split(" ").length > 1) {
-                int numOfEmails = Integer.parseInt(statResponse.split(" ")[1]);
-
+                // int numOfEmails = Integer.parseInt(statResponse.split(" ")[1]);
+                Set<String> existingUIDLs = loadExistingUIDLs(userEmail);
                 List<String> uidlList = new ArrayList<>();
+
                 sendCommand(writer, "UIDL");
+
                 String uidlResponse;
                 while (!(uidlResponse = reader.readLine()).equals(".")) {
                     uidlList.add(uidlResponse);
                 }
 
-                Set<String> existingUIDLs = loadExistingUIDLs(userEmail);
-                // attachmentFiles.clear();
+                for (int i = 1; i < uidlList.size(); i++) {
+                    String uidl = uidlList.get(i).split(" ")[1];
+                    String uid = uidl.substring(0, uidl.length() - 4);
+                    if (!existingUIDLs.contains(uid)) {
+                        sendCommand(writer, "RETR " + i);
 
-                for (int i = 1; i <= numOfEmails; i++) {
-                    sendCommand(writer, "RETR " + i);
-                    System.out.println(reader.readLine());
+                        String emailLine;
+                        StringBuilder emailData = new StringBuilder();
+                        StringBuilder emailContent = new StringBuilder();
+                        boolean isHeaderSession = true;
+                        boolean isBodySession = false;
+                        boolean hasAttachment = false;
+                        EmailModel email = new EmailModel();
+                        email.setId(uid);
 
-                    String emailLine;
-                    StringBuilder emailHeader = new StringBuilder();
-                    StringBuilder emailContent = new StringBuilder();
-                    StringBuilder attachmentContent = new StringBuilder();
-                    boolean isAttachmentSession = false;
-                    boolean isContentSession = false;
-                    while (!(emailLine = reader.readLine()).equals(".")) {
-                        if (emailLine.startsWith("Content-Type: multipart/mixed;")) {
-                            isAttachmentSession = true;
-                        }
-                        if (emailLine.startsWith("Content-Transfer-Encoding: 7bit")) {
-                            isContentSession = true;
-                            emailHeader.append("Content-Transfer-Encoding: 7bit").append("\r\n");
-                            continue;
-                        }
-                        if (isAttachmentSession) {
-                            attachmentContent.append(emailLine).append("\r\n");
-                        } else {
-                            if (isContentSession) {
+                        while (!(emailLine = reader.readLine()).equals(".")) {
+                            emailData.append(emailLine).append("\r\n");
+                            if (isHeaderSession) {
+                                if (emailLine.startsWith("Content-Type: multipart/mixed;")) {
+                                    hasAttachment = true;
+                                }
+                                if (emailLine.startsWith("Date")) {
+                                    email.setDate(getValueFromLine(emailLine, "Date"));
+                                }
+                                if (emailLine.startsWith("To")) {
+                                    email.setTo(getValuesFromLine(emailLine, "To"));
+                                }
+                                if (emailLine.startsWith("Cc")) {
+                                    email.setCc(getValuesFromLine(emailLine, "Cc"));
+                                }
+                                if (emailLine.startsWith("Bcc")) {
+                                    email.setBcc(getValuesFromLine(emailLine, "Bcc"));
+                                }
+                                if (emailLine.startsWith("From")) {
+                                    email.setFrom(getValueFromLine(emailLine, "From"));
+                                }
+                                if (emailLine.startsWith("Subject")) {
+                                    email.setTitle(getValueFromLine(emailLine, "Subject"));
+                                    isHeaderSession = false;
+                                    isBodySession = true;
+                                }
+                            }
+                            if (isBodySession) {
                                 emailContent.append(emailLine).append("\r\n");
-                            } else {
-                                emailHeader.append(emailLine).append("\r\n");
                             }
                         }
-                    }
-
-                    if (i <= uidlList.size()) {
-                        String uidlResponseLine = uidlList.get(i);
-                        String[] uidlParts = uidlResponseLine.split(" ");
-                        if (uidlParts.length >= 2) {
-                            String uid = uidlParts[1].substring(0, uidlParts[1].length() - 4);
-                            if (!existingUIDLs.contains(uid)) {
-                                EmailModel email = new EmailModel();
-                                email.setId(uid);
-                                email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
-                                email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
-                                email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
-                                email.setBcc(getValuesFromEmailHeader(emailHeader.toString(), "Bcc"));
-
-                                String from = getValueFromEmailHeader(emailHeader.toString(), "From");
-                                String subject = getValueFromEmailHeader(emailHeader.toString(), "Subject");
-                                String body = emailContent.toString();
-                                email.setFrom(from);
-                                email.setTitle(subject);
-                                email.setContent(body);
-
-                                if (email.getTag().equals("Inbox")) {
-                                    _config.getFilterMap().forEach((k, v) -> {
-                                        if (v.get("From").contains(from)) {
-                                            email.setTag(k);
-                                        }
-                                    });
-                                }
-
-                                if (email.getTag().equals("Inbox")) {
-                                    _config.getFilterMap().forEach((k, v) -> {
-                                        for (String s : v.get("Subject")) {
-                                            if (subject.contains(s) && !s.isEmpty()) {
-                                                email.setTag(k);
-                                            }
-                                        }
-                                    });
-                                }
-
-                                if (email.getTag().equals("Inbox")) {
-                                    _config.getFilterMap().forEach((k, v) -> {
-                                        for (String s : v.get("Body")) {
-                                            if (body.contains(s) && !s.isEmpty()) {
-                                                email.setTag(k);
-                                            }
-                                        }
-                                    });
-                                }
-
-                                if (email.getTag().equals("Inbox")) {
-                                    String content = subject + body;
-                                    _config.getFilterMap().forEach((k, v) -> {
-                                        for (String s : v.get("Content")) {
-                                            if (content.contains(s) && !s.isEmpty()) {
-                                                email.setTag(k);
-                                            }
-                                        }
-                                    });
-                                }
-
-                                if (isAttachmentSession) {
-                                    saveAttachments(attachmentContent.toString(), userEmail);
-                                    email.setAttachmentFiles(attachmentFiles);
-                                }
-
-                                emailList.add(0, email);
-
-                                saveEmailContent(userEmail, uid, emailHeader.toString() + emailContent.toString()
-                                        + attachmentContent.toString());
-
-                                System.out.println("Email saved: " + userEmail + File.separatorChar + uid + ".txt");
-                                System.out.println("--------------------------------------------------");
-
-                                existingUIDLs.add(uid);
-                                saveExistingUIDLs(userEmail, existingUIDLs);
-                            } else {
-                                System.out.println("Email with UID " + uid + " already exists. Skipping...");
-                            }
+                        if (hasAttachment) {
+                            email.setContent(getEmailContentWithAttachment(emailContent.toString()));
+                            saveAttachments(emailContent.toString(), userEmail);
+                            email.setAttachmentFiles(attachmentFiles);
+                        } else {
+                            email.setContent(getEmailContent(emailContent.toString()));
                         }
+
+                        emailList.add(0, email);
+                        existingUIDLs.add(uid);
+                        saveEmail(userEmail, uid, emailData.toString());
+                        saveExistingUIDLs(userEmail, existingUIDLs);
+
+                    } else {
+                        // System.out.println("Email already exists: " + uid);
                     }
                 }
             }
@@ -423,59 +387,75 @@ public class Helper {
             for (File file : files) {
                 if (file.isFile() && file.getName().endsWith(".txt")) {
                     try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+                        
                         String emailLine;
-                        StringBuilder emailHeader = new StringBuilder();
+                        StringBuilder emailData = new StringBuilder();
                         StringBuilder emailContent = new StringBuilder();
-                        StringBuilder attachmentContent = new StringBuilder();
-                        boolean isAttachmentSession = false;
-                        boolean isContentSession = false;
+                        boolean isHeaderSession = true;
+                        boolean isBodySession = false;
+                        boolean hasAttachment = false;
+                        EmailModel email = new EmailModel();
+                        String subject = "";
+                        String body = "";
+                        String from = "";
+                        
                         while ((emailLine = reader.readLine()) != null) {
-                            if (emailLine.startsWith("Content-Type: multipart/mixed;")) {
-                                isAttachmentSession = true;
-                            }
-                            if (emailLine.startsWith("Content-Transfer-Encoding: 7bit")) {
-                                isContentSession = true;
-                                emailHeader.append("Content-Transfer-Encoding: 7bit").append("\r\n");
-                                continue;
-                            }
-                            if (isAttachmentSession) {
-                                attachmentContent.append(emailLine).append("\r\n");
-                            } else {
-                                if (isContentSession) {
-                                    emailContent.append(emailLine).append("\r\n");
-                                } else {
-                                    emailHeader.append(emailLine).append("\r\n");
+                            email.setId(file.getName().substring(0, file.getName().length() - 4));
+                            emailData.append(emailLine).append("\r\n");
+                            if (isHeaderSession) {
+                                if (emailLine.startsWith("Content-Type: multipart/mixed;")) {
+                                    hasAttachment = true;
+                                }
+                                if (emailLine.startsWith("Date")) {
+                                    email.setDate(getValueFromLine(emailLine, "Date"));
+                                }
+                                if (emailLine.startsWith("To")) {
+                                    email.setTo(getValuesFromLine(emailLine, "To"));
+                                }
+                                if (emailLine.startsWith("Cc")) {
+                                    email.setCc(getValuesFromLine(emailLine, "Cc"));
+                                }
+                                if (emailLine.startsWith("Bcc")) {
+                                    email.setBcc(getValuesFromLine(emailLine, "Bcc"));
+                                }
+                                if (emailLine.startsWith("From")) {
+                                    from = getValueFromLine(emailLine, "From");
+                                    email.setFrom(from);
+                                }
+                                if (emailLine.startsWith("Subject")) {
+                                    subject = getValueFromLine(emailLine, "Subject");
+                                    email.setTitle(subject);
+                                    isHeaderSession = false;
+                                    isBodySession = true;
                                 }
                             }
+                            if (isBodySession) {
+                                emailContent.append(emailLine).append("\r\n");
+                            }
                         }
-
-                        EmailModel email = new EmailModel();
-                        email.setId(file.getName().substring(0, file.getName().length() - 4));
-                        email.setDate(getValueFromEmailHeader(emailHeader.toString(), "Date"));
-                        email.setTo(getValuesFromEmailHeader(emailHeader.toString(), "To"));
-                        email.setCc(getValuesFromEmailHeader(emailHeader.toString(), "Cc"));
-                        email.setBcc(getValuesFromEmailHeader(emailHeader.toString(), "Bcc"));
-
-                        String from = getValueFromEmailHeader(emailHeader.toString(), "From");
-                        String subject = getValueFromEmailHeader(emailHeader.toString(), "Subject");
-                        System.out.println("Subject: " + subject);
-                        String body = emailContent.toString();
-                        email.setFrom(from);
-                        email.setTitle(subject);
+                        if (hasAttachment) {
+                            body = getEmailContentWithAttachment(emailContent.toString());
+                            loadAttachments(emailContent.toString(), userEmail);
+                            email.setAttachmentFiles(attachmentFiles);
+                        } else {
+                            body = getEmailContent(emailContent.toString());
+                        }
                         email.setContent(body);
 
                         if (email.getTag().equals("Inbox")) {
+                            final String _from = from;
                             _config.getFilterMap().forEach((k, v) -> {
-                                if (v.get("From").contains(from)) {
+                                if (v.get("From").contains(_from)) {
                                     email.setTag(k);
                                 }
                             });
                         }
 
                         if (email.getTag().equals("Inbox")) {
+                            final String _subject = subject;
                             _config.getFilterMap().forEach((k, v) -> {
                                 for (String s : v.get("Subject")) {
-                                    if (subject.contains(s) && !s.isEmpty()) {
+                                    if (!s.isEmpty() && _subject.contains(s)) {
                                         email.setTag(k);
                                     }
                                 }
@@ -483,9 +463,10 @@ public class Helper {
                         }
 
                         if (email.getTag().equals("Inbox")) {
+                            final String _body = body;
                             _config.getFilterMap().forEach((k, v) -> {
                                 for (String s : v.get("Body")) {
-                                    if (body.contains(s) && !s.isEmpty()) {
+                                    if (!s.isEmpty() && _body.contains(s)) {
                                         email.setTag(k);
                                     }
                                 }
@@ -493,19 +474,14 @@ public class Helper {
                         }
 
                         if (email.getTag().equals("Inbox")) {
-                            String content = subject + body;
+                            final String _content = subject + body;
                             _config.getFilterMap().forEach((k, v) -> {
                                 for (String s : v.get("Content")) {
-                                    if (content.contains(s) && !s.isEmpty()) {
+                                    if (!s.isEmpty() && _content.contains(s)) {
                                         email.setTag(k);
                                     }
                                 }
                             });
-                        }
-
-                        if (isAttachmentSession) {
-                            loadAttachments(attachmentContent.toString(), userEmail);
-                            email.setAttachmentFiles(attachmentFiles);
                         }
 
                         emailList.add(0, email);
@@ -524,10 +500,10 @@ public class Helper {
         return emailList;
     }
 
-    public static String getValueFromEmailHeader(String emailContent, String fieldName) {
-        String patternString = fieldName + ": (.*?)\\r\\n";
+    public static String getValueFromLine(String line, String fieldName) {
+        String patternString = fieldName + ": (.*)";
         Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(emailContent);
+        Matcher matcher = pattern.matcher(line);
 
         if (matcher.find()) {
             return matcher.group(1);
@@ -535,10 +511,10 @@ public class Helper {
         return null;
     }
 
-    public static String[] getValuesFromEmailHeader(String emailContent, String fieldName) {
-        String patternString = fieldName + ": (.*?)\\r\\n";
+    public static String[] getValuesFromLine(String line, String fieldName) {
+        String patternString = fieldName + ": (.*)";
         Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(emailContent);
+        Matcher matcher = pattern.matcher(line);
 
         if (matcher.find()) {
             String value = matcher.group(1);
@@ -557,7 +533,7 @@ public class Helper {
         }
     }
 
-    private static void saveEmailContent(String userEmail, String fileName, String content) {
+    private static void saveEmail(String userEmail, String fileName, String content) {
         try {
             Path directoryPath = Paths.get(jarPath, "data", userEmail, "emails");
             if (!Files.exists(directoryPath)) {
@@ -576,7 +552,33 @@ public class Helper {
         }
     }
 
-    private static void saveEmailAttachment(String userEmail, String fileName, byte[] content) {
+    private static String getEmailContent(String data) {
+        String patternString = "Content-Transfer-Encoding: 7bit\\s+\\n(.*?)\\s+\\n";
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline
+                                                                          // characters
+        Matcher matcher = pattern.matcher(data);
+        String content = "";
+
+        if (matcher.find()) {
+            content = matcher.group(1);
+        }
+        return content;
+    }
+
+    private static String getEmailContentWithAttachment(String data) {
+        String patternString = "Content-Transfer-Encoding: 7bit\\s+\\n(.*?)\\s+\\n--";
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline
+                                                                          // characters
+        Matcher matcher = pattern.matcher(data);
+        String content = "";
+
+        if (matcher.find()) {
+            content = matcher.group(1);
+        }
+        return content;
+    }
+
+    private static void saveAttachment(String userEmail, String fileName, byte[] content) {
         try {
             Path directoryPath = Paths.get(jarPath, "data", userEmail);
             if (!Files.exists(directoryPath)) {
@@ -592,11 +594,11 @@ public class Helper {
         }
     }
 
-    public static void saveAttachments(String emailAttachment, String userEmail) {
-        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?Content-Transfer-Encoding: base64\\s+\\n(.*?)\\s+\\n--separator";
+    private static void saveAttachments(String data, String userEmail) {
+        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?Content-Transfer-Encoding: base64\\s+\\n(.*?)\\s+\\n--";
         Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline
                                                                           // characters
-        Matcher matcher = pattern.matcher(emailAttachment);
+        Matcher matcher = pattern.matcher(data);
 
         while (matcher.find()) {
             String fileName = matcher.group(1);
@@ -604,16 +606,16 @@ public class Helper {
 
             byte[] decodedBytes = Base64.getDecoder().decode(base64Content);
 
-            saveEmailAttachment(userEmail, fileName, decodedBytes);
+            saveAttachment(userEmail, fileName, decodedBytes);
             System.out.println("Attachment saved: " + fileName);
         }
     }
 
-    public static void loadAttachments(String emailAttachment, String userEmail) {
-        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?--separator";
+    private static void loadAttachments(String data, String userEmail) {
+        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?--";
         Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline
                                                                           // characters
-        Matcher matcher = pattern.matcher(emailAttachment);
+        Matcher matcher = pattern.matcher(data);
 
         while (matcher.find()) {
             String fileName = matcher.group(1);
@@ -670,7 +672,7 @@ public class Helper {
     private static List<String> getAttachmentFileNames(String emailContent) {
         List<String> attachmentFileNames = new ArrayList<>();
 
-        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?--separator";
+        String patternString = "Content-Type: .*?; name=\"(.*?)\".*?--";
         Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL);
 
         Matcher matcher = pattern.matcher(emailContent);

@@ -354,6 +354,7 @@ public class AuthView {
 
         String fullname = getFullnameByEmail(email);
         _user.setEmail(email);
+        _user.setPassword(password);
         _user.setFullname(fullname);
         showMainView();
     }

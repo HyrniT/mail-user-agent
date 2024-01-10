@@ -51,9 +51,9 @@ public class MainView {
                     mailListModel.clear();
                     for (EmailModel newEmail : newEmails) {
                         _emails.add(0, newEmail);
-                        for (EmailModel email : _emails) {
-                            mailListModel.addElement(email);
-                        }
+                        // for (EmailModel email : _emails) {
+                        //     mailListModel.addElement(email);
+                        // }
                     }
                     hiddenLabel();
                     folderList.clearSelection();
@@ -326,13 +326,13 @@ public class MainView {
                     subjectValueLabel.setText(selectedEmail.getTitle());
                     contentTextArea.setText(selectedEmail.getContent());
 
-                    if (selectedEmail.getCc().length > 0) {
+                    if (selectedEmail.getCc() != null && selectedEmail.getCc().length > 0) {
                         ccLabel.setVisible(true);
                         ccValueLabel.setVisible(true);
                         ccValueLabel.setText(String.join(", ", selectedEmail.getCc()));
                     }
                     
-                    if (selectedEmail.getBcc().length > 0) {
+                    if (selectedEmail.getBcc() != null && selectedEmail.getBcc().length > 0) {
                         if (selectedEmail.getFrom().equals(_user.getEmail())) {
                             toValueLabel.setText(_user.getEmail());
                             bccLabel.setVisible(true);
