@@ -214,9 +214,9 @@ public class Helper {
                 sendCommand(writer, "Cc: " + String.join(",", mail.getCc()));
             }
 
-            if (mail.getBcc() != null && mail.getBcc().length > 0) {
-                sendCommand(writer, "Bcc: " + String.join(",", mail.getBcc()));
-            }
+            // if (mail.getBcc() != null && mail.getBcc().length > 0) {
+            //     sendCommand(writer, "Bcc: " + String.join(",", mail.getBcc()));
+            // }
 
             sendCommand(writer, "From: " + user.getFullname() + " <" + mail.getFrom().trim() + ">");
 
@@ -313,6 +313,7 @@ public class Helper {
                         String emailLine;
                         StringBuilder emailData = new StringBuilder();
                         StringBuilder emailContent = new StringBuilder();
+                        boolean isBcc = true;
                         boolean isHeaderSession = true;
                         boolean isBodySession = false;
                         boolean hasAttachment = false;
@@ -332,13 +333,18 @@ public class Helper {
                                     email.setDate(getValueFromLine(emailLine, "Date"));
                                 }
                                 if (emailLine.startsWith("To")) {
-                                    email.setTo(getValuesFromLine(emailLine, "To"));
+                                    String[] toArray = getValuesFromLine(emailLine, "To");
+                                    email.setTo(toArray);
+                                    if (Arrays.asList(toArray).contains(userEmail)) {
+                                        isBcc = false;
+                                    }
                                 }
                                 if (emailLine.startsWith("Cc")) {
-                                    email.setCc(getValuesFromLine(emailLine, "Cc"));
-                                }
-                                if (emailLine.startsWith("Bcc")) {
-                                    email.setBcc(getValuesFromLine(emailLine, "Bcc"));
+                                    String[] ccArray = getValuesFromLine(emailLine, "Cc");
+                                    email.setCc(ccArray);
+                                    if (Arrays.asList(ccArray).contains(userEmail)) {
+                                        isBcc = false;
+                                    }
                                 }
                                 if (emailLine.startsWith("From")) {
                                     from = getValueFromLine(emailLine, "From");
@@ -356,6 +362,10 @@ public class Helper {
                             if (isBodySession) {
                                 emailContent.append(emailLine).append("\r\n");
                             }
+                        }
+                        if (isBcc) {
+                            email.setTo(new String[] { userEmail });
+                            email.setBcc(new String[] { userEmail });
                         }
                         if (hasAttachment) {
                             body = getEmailContentWithAttachment(emailContent.toString());
@@ -441,6 +451,7 @@ public class Helper {
                         String emailLine;
                         StringBuilder emailData = new StringBuilder();
                         StringBuilder emailContent = new StringBuilder();
+                        boolean isBcc = true;
                         boolean isHeaderSession = true;
                         boolean isBodySession = false;
                         boolean hasAttachment = false;
@@ -460,13 +471,18 @@ public class Helper {
                                     email.setDate(getValueFromLine(emailLine, "Date"));
                                 }
                                 if (emailLine.startsWith("To")) {
-                                    email.setTo(getValuesFromLine(emailLine, "To"));
+                                    String[] toArray = getValuesFromLine(emailLine, "To");
+                                    email.setTo(toArray);
+                                    if (Arrays.asList(toArray).contains(userEmail)) {
+                                        isBcc = false;
+                                    }
                                 }
                                 if (emailLine.startsWith("Cc")) {
-                                    email.setCc(getValuesFromLine(emailLine, "Cc"));
-                                }
-                                if (emailLine.startsWith("Bcc")) {
-                                    email.setBcc(getValuesFromLine(emailLine, "Bcc"));
+                                    String[] ccArray = getValuesFromLine(emailLine, "Cc");
+                                    email.setCc(ccArray);
+                                    if (Arrays.asList(ccArray).contains(userEmail)) {
+                                        isBcc = false;
+                                    }
                                 }
                                 if (emailLine.startsWith("From")) {
                                     from = getValueFromLine(emailLine, "From");
@@ -484,6 +500,11 @@ public class Helper {
                             if (isBodySession) {
                                 emailContent.append(emailLine).append("\r\n");
                             }
+                        }
+                        if (isBcc) {
+                            email.setTo(new String[] { userEmail });
+                            email.setCc(new String[0]);
+                            email.setBcc(new String[] { userEmail });
                         }
                         if (hasAttachment) {
                             body = getEmailContentWithAttachment(emailContent.toString());

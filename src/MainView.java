@@ -23,23 +23,25 @@ public class MainView {
     private JList<String> folderList;
     private JList<EmailModel> mailList;
     private DefaultListModel<EmailModel> mailListModel;
-    private JLabel fromValueLabel, toValueLabel, ccValueLabel, bccValueLabel, subjectValueLabel;
-    private JLabel fromLabel, toLabel, ccLabel, bccLabel, subjectLabel;
+    private JLabel fromValueLabel, toValueLabel, ccValueLabel, subjectValueLabel;
+    private JLabel fromLabel, toLabel, ccLabel, subjectLabel;
     private JTextArea contentTextArea;
     private JPanel attachmentPanel;
 
     private EmailModel selectedEmail = null;
     private String selectedFolder = null;
     // private String selectedEmailId = null;
-
+    
     private UserModel _user;
     private ConfigModel _config;
     private List<EmailModel> _emails;
+    private String userEmail;
 
     public MainView(UserModel user, ConfigModel config, List<EmailModel> emails) {
         this._user = user;
         this._config = config;
         this._emails = emails;
+        this.userEmail = user.getEmail();
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(() -> {
             SwingUtilities.invokeLater(() -> {
@@ -64,7 +66,7 @@ public class MainView {
     }
 
     private void initializeUI() {
-        frame = new JFrame(_user.getFullname() + " - " + _user.getEmail());
+        frame = new JFrame(_user.getFullname() + " - " + userEmail);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setSize(900, 600);
@@ -195,34 +197,12 @@ public class MainView {
         gbc.weightx = 0.85;
         headerPanel.add(ccValueLabel, gbc);
 
-        bccLabel = new JLabel("Bcc:");
-        bccLabel.setFont(new Font(FontName, Font.BOLD, 14));
-        bccLabel.setBackground(PrimaryColor);
-        bccLabel.setForeground(OnPrimaryColor);
-        bccLabel.setVisible(false);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 1;
-        gbc.weightx = 0.15;
-        headerPanel.add(bccLabel, gbc);
-
-        bccValueLabel = new JLabel();
-        bccValueLabel.setFont(new Font(FontName, Font.PLAIN, 14));
-        bccValueLabel.setBackground(PrimaryColor);
-        bccValueLabel.setForeground(OnPrimaryColor);
-        bccValueLabel.setVisible(false);
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        gbc.gridwidth = 1;
-        gbc.weightx = 0.85;
-        headerPanel.add(bccValueLabel, gbc);
-
         subjectLabel = new JLabel("Subject:");
         subjectLabel.setFont(new Font(FontName, Font.BOLD, 14));
         subjectLabel.setBackground(PrimaryColor);
         subjectLabel.setForeground(OnPrimaryColor);
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.weightx = 0.15;
         headerPanel.add(subjectLabel, gbc);
@@ -232,7 +212,7 @@ public class MainView {
         subjectValueLabel.setBackground(PrimaryColor);
         subjectValueLabel.setForeground(OnPrimaryColor);
         gbc.gridx = 1;
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.weightx = 0.85;
         headerPanel.add(subjectValueLabel, gbc);
@@ -316,13 +296,11 @@ public class MainView {
                 selectedEmail = mailList.getSelectedValue();
                 if (selectedEmail != null) {
                     visibleLabel();
-                    bccLabel.setVisible(false);
-                    bccValueLabel.setVisible(false);
                     ccLabel.setVisible(false);
                     ccValueLabel.setVisible(false);
                     String selectedEmailId = selectedEmail.getId();
                     fromValueLabel.setText(selectedEmail.getFrom());
-                    toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
+                    // toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     subjectValueLabel.setText(selectedEmail.getTitle());
                     contentTextArea.setText(selectedEmail.getContent());
 
@@ -330,26 +308,22 @@ public class MainView {
                         ccLabel.setVisible(true);
                         ccValueLabel.setVisible(true);
                         ccValueLabel.setText(String.join(", ", selectedEmail.getCc()));
+                        toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     }
                     
                     if (selectedEmail.getBcc() != null && selectedEmail.getBcc().length > 0) {
-                        if (selectedEmail.getFrom().equals(_user.getEmail())) {
-                            toValueLabel.setText(_user.getEmail());
-                            bccLabel.setVisible(true);
-                            bccValueLabel.setVisible(true);
-                            bccValueLabel.setText(String.join(", ", selectedEmail.getBcc()));
-                        } else if (Arrays.asList(selectedEmail.getBcc()).contains(_user.getEmail())) {
-                            toValueLabel.setText(_user.getEmail());
-                            bccLabel.setVisible(false);
-                            bccValueLabel.setVisible(false);
-                            ccLabel.setVisible(false);
-                            ccValueLabel.setVisible(false);
+                        if (Arrays.asList(selectedEmail.getBcc()).contains(userEmail)) {
+                            toValueLabel.setText(userEmail);
+                        } else {
+                            toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                         }
+                    } else {
+                        toValueLabel.setText(String.join(", ", selectedEmail.getTo()));
                     }
                     
                     if (selectedEmail.getAttachmentFiles() != null) {
-                        for (String attachmentFile : Helper.getAttachmentFileNamesFromSavedEmail(_user.getEmail(), selectedEmailId)) {
-                            File file = Paths.get("data", _user.getEmail(), attachmentFile).toFile();
+                        for (String attachmentFile : Helper.getAttachmentFileNamesFromSavedEmail(userEmail, selectedEmailId)) {
+                            File file = Paths.get("data", userEmail, attachmentFile).toFile();
                             JButton openFileButton = new JButton(file.getName());
                             openFileButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                             openFileButton.setFont(new Font(FontName, Font.PLAIN, 14));
@@ -377,12 +351,10 @@ public class MainView {
         fromLabel.setVisible(false);
         toLabel.setVisible(false);
         ccLabel.setVisible(false);
-        bccLabel.setVisible(false);
         subjectLabel.setVisible(false);
         fromValueLabel.setVisible(false);
         toValueLabel.setVisible(false);
         ccValueLabel.setVisible(false);
-        bccValueLabel.setVisible(false);
         subjectValueLabel.setVisible(false);
     }
 
