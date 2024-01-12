@@ -17,7 +17,7 @@ The workspace contains two folders by default, where:
 
 * **Step 2:**
     * Java version < 11: `java -jar test-mail-server-1.0.jar -s 2225 -p 3335 -m ./`
-    * Java version >= 11 (Windows): `java --module-path "path\to\javafx\javafx-sdk-xx\lib" --add-modules javafx.controls,javafx.fxml -jar test-mail-server-1.0.jar -s 2225 -p 3335 -m ./`
+    * Java version >= 11: `java --module-path "path\to\javafx\javafx-sdk-xx\lib" --add-modules javafx.controls,javafx.fxml -jar test-mail-server-1.0.jar -s 2225 -p 3335 -m ./`
 
 ### Run client app by using .jar
 
@@ -35,7 +35,7 @@ The workspace contains two folders by default, where:
 
 * **Step 3:** `./run.sh`
 
-*Window:**
+**Window:**
 
 * **Step 1:** `cd \mail-user-agent\src`
 
