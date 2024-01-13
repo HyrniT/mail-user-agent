@@ -21,6 +21,7 @@ public class Helper {
     private static Map<String, Map<String, List<String>>> filterMap = new HashMap<>();
     private static Element filterElement;
     private static List<String> attachmentFiles = new ArrayList<>();
+    private static boolean connectError = false;
 
     public static String jarPath;
 
@@ -248,9 +249,21 @@ public class Helper {
                         sendCommand(writer, "Content-Disposition: attachment; filename=\"" + file.getName() + "\"");
                         sendCommand(writer, "Content-Transfer-Encoding: base64");
                         sendCommand(writer, "");
-                        byte[] fileBytes = Files.readAllBytes(Paths.get(attachmentFile));
-                        String base64EncodedFile = Base64.getEncoder().encodeToString(fileBytes);
-                        sendCommand(writer, base64EncodedFile);
+
+                        try (InputStream fis = new FileInputStream(file)) {
+                            byte[] buffer = new byte[8192];
+                            int bytesRead;
+
+                            while ((bytesRead = fis.read(buffer)) != -1) {
+                                byte[] chunk = new byte[bytesRead];
+                                System.arraycopy(buffer, 0, chunk, 0, bytesRead);
+                                String base64EncodedChunk = Base64.getEncoder().encodeToString(chunk);
+                                sendCommand(writer, base64EncodedChunk);
+
+                                Thread.sleep(100);
+                            }
+                        }
+
                         sendCommand(writer, "");
                     }
                 }
@@ -433,7 +446,10 @@ public class Helper {
 
         } catch (IOException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Cannot connect to server!", "Error", JOptionPane.ERROR_MESSAGE);
+            if (!connectError) {
+                JOptionPane.showMessageDialog(null, "Cannot connect to server!", "Error", JOptionPane.ERROR_MESSAGE);
+                connectError = true;
+            }
         }
 
         return emailList;
@@ -651,7 +667,7 @@ public class Helper {
         return content;
     }
 
-    private static void saveAttachment(String userEmail, String fileName, byte[] content) {
+    private static void saveAttachment(String userEmail, String fileName, InputStream inputStream) {
         try {
             Path directoryPath = Paths.get(jarPath, "data", userEmail);
             if (!Files.exists(directoryPath)) {
@@ -661,7 +677,16 @@ public class Helper {
             Path filePath = Paths.get(directoryPath.toString(), fileName);
             attachmentFiles.add(fileName);
 
-            Files.write(filePath, content);
+            try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(filePath))) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+
+            System.out.println("Attachment saved: " + fileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -669,18 +694,27 @@ public class Helper {
 
     private static void saveAttachments(String data, String userEmail) {
         String patternString = "Content-Type: .*?; name=\"(.*?)\".*?Content-Transfer-Encoding: base64\\s+\\n(.*?)\\s+\\n--";
-        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL); // Pattern.DOTALL is used to match newline
-                                                                          // characters
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL);
         Matcher matcher = pattern.matcher(data);
 
         while (matcher.find()) {
             String fileName = matcher.group(1);
             String base64Content = matcher.group(2);
 
+            base64Content = base64Content.replaceAll("[^a-zA-Z0-9+/=]", "");
+
+            // int padding = base64Content.length() % 4;
+            // if (padding > 0) {
+            //     base64Content = base64Content + "====".substring(padding);
+            // }
+
             byte[] decodedBytes = Base64.getDecoder().decode(base64Content);
 
-            saveAttachment(userEmail, fileName, decodedBytes);
-            System.out.println("Attachment saved: " + fileName);
+            try (InputStream inputStream = new ByteArrayInputStream(decodedBytes)) {
+                saveAttachment(userEmail, fileName, inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

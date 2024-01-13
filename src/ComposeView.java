@@ -215,15 +215,7 @@ public class ComposeView {
                 Helper.sendMail(_user, _email, _config);
                 // JOptionPane.showMessageDialog(frame, "Email sent successfully!", "Success",
                 //         JOptionPane.INFORMATION_MESSAGE);
-
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    frame.dispose();
-                }).start();
+                frame.dispose();
             }
         });
 
