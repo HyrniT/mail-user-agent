@@ -208,11 +208,11 @@ public class Helper {
             sendCommand(writer, "Content-Language: en-US");
 
             if (mail.getTo() != null && mail.getTo().length > 0) {
-                sendCommand(writer, "To: " + String.join(",", mail.getTo()));
+                sendCommand(writer, "To: " + String.join(", ", mail.getTo()));
             }
 
             if (mail.getCc() != null && mail.getCc().length > 0) {
-                sendCommand(writer, "Cc: " + String.join(",", mail.getCc()));
+                sendCommand(writer, "Cc: " + String.join(", ", mail.getCc()));
             }
 
             // if (mail.getBcc() != null && mail.getBcc().length > 0) {

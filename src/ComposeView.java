@@ -197,13 +197,13 @@ public class ComposeView {
                 String[] toList = null, ccList = null, bccList = null;
 
                 if (!to.trim().isEmpty()) {
-                    toList = to.split(",");
+                    toList = to.split(", ");
                 }
                 if (!cc.trim().isEmpty()) {
-                    ccList = cc.split(",");
+                    ccList = cc.split(", ");
                 }
                 if (!bcc.trim().isEmpty()) {
-                    bccList = bcc.split(",");
+                    bccList = bcc.split(", ");
                 }
 
                 if (attachLabel.getText().length() > 0) {
